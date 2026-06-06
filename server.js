@@ -3,18 +3,116 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const admin = require('firebase-admin');
 
 try {
   require('dotenv').config();
 } catch (e) {
-  // Fallback if dotenv is not installed
+  // Fallback if dotenv is not installed (e.g., using --env-file)
 }
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Dynamically serve firebase-config.js using env variables before static middleware
+// ==========================================
+// FIREBASE ADMIN INITIALIZATION (CONDITIONAL)
+// ==========================================
+let adminInitialized = false;
+let db = null;
+
+try {
+  const serviceAccount = require('./serviceAccountKey.json');
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+  db = admin.firestore();
+  adminInitialized = true;
+  console.log("Firebase Admin successfully initialized. Production-grade token verification is active.");
+} catch (error) {
+  console.warn("WARNING: Firebase Admin could not be initialized (missing serviceAccountKey.json).");
+  console.warn("Backend is running in JWT Fallback / Mock mode for local testing.");
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!adminInitialized && !JWT_SECRET) {
+  console.error("FATAL ERROR: JWT_SECRET is not defined in environment variables (required for mock JWT mode).");
+  process.exit(1);
+}
+
+// ==========================================
+// SECURE MIDDLEWARE (HYBRID METHOD)
+// ==========================================
+const verifyRole = (allowedRoles) => {
+  return async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "Access Denied: No Token Provided" });
+
+    const token = authHeader.split(' ')[1];
+
+    if (adminInitialized) {
+      // Production: Google Firebase Admin Token Verification
+      try {
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        const userDoc = await db.collection('users').doc(decodedToken.uid).get();
+
+        if (!userDoc.exists) {
+          return res.status(403).json({ error: "Access Denied: User profile missing in Firestore" });
+        }
+
+        const userRole = userDoc.data().role;
+        if (allowedRoles.includes(userRole)) {
+          req.user = { uid: decodedToken.uid, role: userRole };
+          next();
+        } else {
+          res.status(403).json({ error: "Access Denied: Insufficient Clearances" });
+        }
+      } catch (err) {
+        res.status(400).json({ error: "Invalid or Expired Firebase Token" });
+      }
+    } else {
+      // Development/Testing: Local JWT Mock Verification
+      try {
+        const verifiedUser = jwt.verify(token, JWT_SECRET);
+        req.user = verifiedUser;
+        if (allowedRoles.includes(verifiedUser.role)) {
+          next();
+        } else {
+          res.status(403).json({ error: "Access Denied: Insufficient Clearances" });
+        }
+      } catch (err) {
+        res.status(400).json({ error: "Invalid Token" });
+      }
+    }
+  };
+};
+
+// ==========================================
+// MOCK LOGIN ENDPOINT (LOCAL TESTING ONLY)
+// ==========================================
+if (!adminInitialized) {
+  app.post('/api/login', (req, res) => {
+    const { email, password } = req.body;
+    const testUsers = [
+      { id: "1", email: "admin@company.com", password: "password123", role: "ADMIN" },
+      { id: "2", email: "md@company.com", password: "password123", role: "MD" },
+      { id: "3", email: "advisor@company.com", password: "password123", role: "FINANCIAL_ADVISOR" },
+      { id: "4", email: "employee@company.com", password: "password123", role: "EMPLOYEE" }
+    ];
+    
+    const user = testUsers.find(u => u.email === email && u.password === password);
+    if (!user) return res.status(400).json({ error: "Invalid credentials" });
+
+    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+    res.json({ token, role: user.role });
+  });
+}
+
+// ==========================================
+// DYNAMIC WEB ROUTING
+// ==========================================
+
+// Serve firebase-config.js populated from environment variables
 app.get('/firebase-config.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
   res.send(`
@@ -32,42 +130,7 @@ window.firebaseConfig = {
 
 app.use(express.static(__dirname));
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  console.error("FATAL ERROR: JWT_SECRET is not defined in the environment variables.");
-  process.exit(1); // Shuts down the server immediately to prevent unauthorized access
-}
-
-
-
-// MOCK SECURITY MIDDLEWARE: Checks if the user has the required clearance level
-const verifyRole = (allowedRoles) => {
-  return (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).json({ error: "Access Denied: No Token Provided" });
-
-    const token = authHeader.split(' ')[1];
-    try {
-      // Decrypt and verify the token
-      const verifiedUser = jwt.verify(token, JWT_SECRET);
-      req.user = verifiedUser;
-
-      // Check if the user's role is inside the allowed array
-      if (allowedRoles.includes(verifiedUser.role)) {
-        next(); // Authorization successful, proceed to the route
-      } else {
-        res.status(403).json({ error: "Access Denied: Insufficient Clearances" });
-      }
-    } catch (err) {
-      res.status(400).json({ error: "Invalid Token" });
-    }
-  };
-};
-
-
-
-// PROTECTED FINANCIAL ROUTE (Accessible by Admin, MD, Director, Co-Director, Financial Advisor)
+// PROTECTED FINANCIAL ROUTE
 app.get('/api/financials', verifyRole(['ADMIN', 'MD', 'DIRECTOR', 'CO_DIRECTOR', 'FINANCIAL_ADVISOR']), (req, res) => {
   res.json({
     totalEarnings: 124500,
@@ -79,22 +142,16 @@ app.get('/api/financials', verifyRole(['ADMIN', 'MD', 'DIRECTOR', 'CO_DIRECTOR',
   });
 });
 
+// IP REGISTRY LOGIC
 const IP_FILE = path.join(__dirname, 'registered_ips.json');
-
-// Helper to load IPs
 function loadRegisteredIPs() {
   try {
-    if (fs.existsSync(IP_FILE)) {
-      const data = fs.readFileSync(IP_FILE, 'utf8');
-      return JSON.parse(data);
-    }
+    if (fs.existsSync(IP_FILE)) return JSON.parse(fs.readFileSync(IP_FILE, 'utf8'));
   } catch (err) {
-    console.error("Error reading IP file:", err);
+    console.error("Error reading IP registry file:", err.message);
   }
   return [];
 }
-
-// Helper to save IP
 function registerIPAddress(ip) {
   try {
     const ips = loadRegisteredIPs();
@@ -103,27 +160,22 @@ function registerIPAddress(ip) {
       fs.writeFileSync(IP_FILE, JSON.stringify(ips, null, 2), 'utf8');
     }
   } catch (err) {
-    console.error("Error writing IP file:", err);
+    console.error("Error writing to IP registry file:", err.message);
   }
 }
 
-// Check IP API
 app.get('/api/check-ip', (req, res) => {
   const ip = req.query.ip || req.ip || req.connection.remoteAddress;
-  const ips = loadRegisteredIPs();
-  const isRegistered = ips.includes(ip);
-  res.json({ registered: isRegistered });
+  res.json({ registered: loadRegisteredIPs().includes(ip) });
 });
 
-// Register IP API
 app.post('/api/register-ip', verifyRole(['ADMIN', 'MD', 'DIRECTOR', 'CO_DIRECTOR', 'FINANCIAL_ADVISOR', 'EMPLOYEE']), (req, res) => {
-  const { ip } = req.body;
-  if (ip) {
-    registerIPAddress(ip);
+  if (req.body.ip) {
+    registerIPAddress(req.body.ip);
     res.json({ success: true });
   } else {
     res.status(400).json({ error: "IP address required" });
   }
 });
 
-app.listen(5000, () => console.log("Server running securely on port 5000"));
+app.listen(5000, () => console.log("Enterprise Server running securely on port 5000"));
