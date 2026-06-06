@@ -119,10 +119,12 @@ service cloud.firestore {
       // Tier 3+ (EXECUTIVE): Can view the financial dashboard
       allow read: if isExecutive();
       // Tier 2 (EMPLOYEE): Can submit an expense, but cannot read the full dashboard
-      // Data Validation: Forces the amount to be a number and requires a valid type
+      // Data Validation: Strict validation of fields, types, and server timestamp
       allow create: if isEmployee() && 
+        request.resource.data.keys().hasAll(['amount', 'type', 'timestamp']) &&
         request.resource.data.amount is number &&
-        request.resource.data.type in ['income', 'expense'];
+        request.resource.data.type in ['income', 'expense'] &&
+        request.resource.data.timestamp == request.time;
       // Tier 5+ (MD, ADMIN): Can edit or delete financial records
       allow update, delete: if isAuthenticated() && (getUserRole() == 'ADMIN' || getUserRole() == 'MD');
     }
