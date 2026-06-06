@@ -39,13 +39,7 @@ if (!JWT_SECRET) {
   process.exit(1); // Shuts down the server immediately to prevent unauthorized access
 }
 
-// Mock Database Users
-const mockUsers = [
-  { id: "1", email: "admin@company.com", password: "password123", role: "ADMIN" },
-  { id: "2", email: "md@company.com", password: "password123", role: "MD" },
-  { id: "3", email: "advisor@company.com", password: "password123", role: "FINANCIAL_ADVISOR" },
-  { id: "4", email: "employee@company.com", password: "password123", role: "EMPLOYEE" }
-];
+
 
 // MOCK SECURITY MIDDLEWARE: Checks if the user has the required clearance level
 const verifyRole = (allowedRoles) => {
@@ -71,17 +65,7 @@ const verifyRole = (allowedRoles) => {
   };
 };
 
-// LOGIN ENDPOINT
-app.post('/api/login', (req, res) => {
-  const { email, password } = req.body;
-  const user = mockUsers.find(u => u.email === email && u.password === password);
 
-  if (!user) return res.status(400).json({ error: "Invalid credentials" });
-
-  // Sign the role right into the token payload securely
-  const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
-  res.json({ token, role: user.role });
-});
 
 // PROTECTED FINANCIAL ROUTE (Accessible by Admin, MD, Director, Co-Director, Financial Advisor)
 app.get('/api/financials', verifyRole(['ADMIN', 'MD', 'DIRECTOR', 'CO_DIRECTOR', 'FINANCIAL_ADVISOR']), (req, res) => {
