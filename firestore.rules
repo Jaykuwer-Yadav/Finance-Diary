@@ -74,9 +74,17 @@ service cloud.firestore {
 
       // ---> TRANSACTIONS SUB-COLLECTION
       match /transactions/{transactionId} {
-        // Allow users to read/write their own transactions
-        allow read, write: if isAuthenticated() && request.auth.uid == userId;
-        // Allow executives/admins to read all user transaction records
+        // Users can read their own transactions
+        allow read: if isAuthenticated() && request.auth.uid == userId;
+        
+        // Users can CREATE a new transaction (e.g., submitting a payment or request)
+        // BUT they cannot update or delete it once it is saved.
+        allow create: if isAuthenticated() && request.auth.uid == userId;
+        
+        // ONLY Executives can alter or delete a user's transaction history
+        allow update, delete: if isExecutive();
+        
+        // Executives can read all user transaction records
         allow read: if isExecutive();
       }
     }
@@ -111,7 +119,10 @@ service cloud.firestore {
       // Tier 3+ (EXECUTIVE): Can view the financial dashboard
       allow read: if isExecutive();
       // Tier 2 (EMPLOYEE): Can submit an expense, but cannot read the full dashboard
-      allow create: if isEmployee();
+      // Data Validation: Forces the amount to be a number and requires a valid type
+      allow create: if isEmployee() && 
+        request.resource.data.amount is number &&
+        request.resource.data.type in ['income', 'expense'];
       // Tier 5+ (MD, ADMIN): Can edit or delete financial records
       allow update, delete: if isAuthenticated() && (getUserRole() == 'ADMIN' || getUserRole() == 'MD');
     }
