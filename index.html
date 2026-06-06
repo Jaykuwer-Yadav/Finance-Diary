@@ -1,0 +1,3516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADCS Ledger - Secure Control Panel</title>
+  
+  <!-- PWA Capabilities for Offline installation -->
+  <meta name="theme-color" content="#06070a" />
+  <link rel="manifest" href='data:application/manifest+json,{"name":"ADCS Finance","short_name":"ADCS","start_url":"./index.html","display":"standalone"}' />
+  
+  <!-- Premium Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=VT323&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ==========================================================================
+       CORE DESIGN SYSTEM & VARIABLES
+       ========================================================================== */
+    :root {
+      --bg-space: #06070a;
+      --card-bg: linear-gradient(135deg, rgba(14, 18, 30, 0.75) 0%, rgba(8, 10, 16, 0.85) 100%);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(99, 102, 241, 0.4);
+      --primary: #6366f1; /* Indigo */
+      --primary-glow: rgba(99, 102, 241, 0.3);
+      --success: #10b981; /* Emerald */
+      --success-glow: rgba(16, 185, 129, 0.2);
+      --warning: #f59e0b; /* Amber */
+      --warning-glow: rgba(245, 158, 11, 0.2);
+      --danger: #ef4444; /* Crimson */
+      --danger-glow: rgba(239, 68, 68, 0.2);
+      --text-main: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --font-display: 'Outfit', sans-serif;
+      --font-sans: 'Inter', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-space);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      padding: 30px 20px;
+    }
+
+    /* Ambient Background Orbs */
+    .cosmic-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .cosmic-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.12;
+      mix-blend-mode: screen;
+    }
+
+    .orb-indigo {
+      width: 45vw;
+      height: 45vw;
+      background: radial-gradient(circle, var(--primary) 0%, rgba(0,0,0,0) 70%);
+      top: -15vw;
+      left: -10vw;
+    }
+
+    .orb-emerald {
+      width: 40vw;
+      height: 40vw;
+      background: radial-gradient(circle, var(--success) 0%, rgba(0,0,0,0) 70%);
+      bottom: -10vw;
+      right: -10vw;
+    }
+
+    .orb-amber {
+      width: 35vw;
+      height: 35vw;
+      background: radial-gradient(circle, var(--warning) 0%, rgba(0,0,0,0) 70%);
+      top: 40%;
+      left: 45%;
+      opacity: 0.06;
+    }
+
+    .bg-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 60px 60px;
+      z-index: 0;
+    }
+
+    /* Container & Layout */
+    .dashboard-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header Styling */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .brand-title-text {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff 40%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* User Profile Chip */
+    .user-profile-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: 50px;
+      padding: 6px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .user-profile-chip:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: var(--border-hover);
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .user-role-badge {
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+    }
+
+    .btn-signout {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.3s ease;
+      margin-left: 10px;
+    }
+
+    .btn-signout:hover {
+      color: var(--danger);
+    }
+
+    /* Workspace Layout Manager (CSS Grid Areas) */
+    .dashboard-workspace-grid {
+      display: grid;
+      gap: 25px;
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+    }
+
+    #smartEntryCard {
+      grid-area: entry;
+    }
+
+    #financialSummaryCard {
+      grid-area: insights;
+    }
+
+    #ledgerBookCard {
+      grid-area: ledger;
+    }
+
+    /* Layout 1: Standard Split Grid */
+    .dashboard-workspace-grid.layout-standard {
+      grid-template-columns: 1.2fr 0.8fr;
+      grid-template-areas: 
+        "entry insights"
+        "ledger ledger";
+    }
+
+    /* Layout 2: Analytics Wide Grid */
+    .dashboard-workspace-grid.layout-wide {
+      grid-template-columns: 1.3fr 0.7fr;
+      grid-template-areas: 
+        "ledger insights"
+        "ledger entry";
+    }
+
+    /* Layout 3: Minimalist Focus */
+    .dashboard-workspace-grid.layout-minimalist {
+      grid-template-columns: 1fr;
+      grid-template-areas: 
+        "insights"
+        "ledger";
+    }
+
+    .dashboard-workspace-grid.layout-minimalist #smartEntryCard {
+      display: none !important;
+    }
+
+    /* Minimalist Horizontal Metrics Box styling */
+    .dashboard-workspace-grid.layout-minimalist #financialSummaryCard .metric-grid {
+      grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-workspace-grid.layout-standard,
+      .dashboard-workspace-grid.layout-wide,
+      .dashboard-workspace-grid.layout-minimalist,
+      .dashboard-workspace-grid.layout-minecraft {
+        grid-template-columns: 1fr !important;
+        grid-template-areas: 
+          "insights"
+          "entry"
+          "ledger" !important;
+      }
+      .dashboard-workspace-grid.layout-minimalist #financialSummaryCard .metric-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .dashboard-workspace-grid.layout-minimalist #smartEntryCard {
+        display: none !important;
+      }
+    }
+
+    /* Layout Switcher UI styling */
+    .layout-switcher-container select {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+      font-family: var(--font-sans);
+      transition: all 0.3s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    .layout-switcher-container select:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-hover);
+    }
+    .layout-switcher-container select option {
+      background-color: var(--bg-space);
+      color: var(--text-main);
+    }
+
+    /* Glassmorphic Card */
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card:hover {
+      box-shadow: 
+        0 20px 45px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(99, 102, 241, 0.02),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Input & Interactive Logic Styling */
+    .input-section {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .smart-input-container {
+      position: relative;
+    }
+
+    .smart-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .smart-input-icon {
+      position: absolute;
+      left: 18px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+      transition: color 0.3s ease;
+    }
+
+    .smart-input-field {
+      width: 100%;
+      background: rgba(5, 7, 12, 0.6);
+      border: 1.5px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px 20px 16px 52px;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .smart-input-field:focus {
+      border-color: var(--primary);
+      box-shadow: 
+        0 0 15px rgba(99, 102, 241, 0.2),
+        inset 0 2px 4px rgba(0,0,0,0.5);
+      background: rgba(5, 7, 12, 0.8);
+    }
+
+    .smart-input-field:focus + .smart-input-icon {
+      color: var(--primary);
+    }
+
+    /* Suggestion Chips */
+    .suggestions-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 5px;
+    }
+
+    .suggestion-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .suggestion-chip {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 30px;
+      padding: 8px 14px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+
+    .suggestion-chip:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: var(--primary);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    /* Live Preview Panel */
+    .preview-panel {
+      margin-top: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-color);
+      border-left: 5px solid var(--text-muted);
+      border-radius: 12px;
+      padding: 16px 20px;
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      min-height: 80px;
+    }
+
+    .preview-panel.income {
+      border-left-color: var(--success);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.05);
+    }
+
+    .preview-panel.expense {
+      border-left-color: var(--danger);
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.05);
+    }
+
+    .preview-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex: 1;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .preview-tag {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 30px;
+    }
+
+    .preview-tag.income {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .preview-tag.expense {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .preview-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      padding: 2px 5px;
+      transition: color 0.2s;
+    }
+
+    .preview-toggle-btn:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    .preview-desc {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preview-desc.empty {
+      color: var(--text-muted);
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    .preview-amount {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .preview-amount.income {
+      color: var(--success);
+    }
+
+    .preview-amount.expense {
+      color: var(--danger);
+    }
+
+    .preview-amount.empty {
+      color: var(--text-muted);
+    }
+
+    .btn-add {
+      background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-add:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 6px 20px rgba(99, 102, 241, 0.35),
+        0 0 25px rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-add:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-add:disabled {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Metric Grid & Analytics Styles */
+    .filter-bar {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.01);
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .filter-btn {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .filter-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .filter-btn.active {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.02);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 14px;
+      padding: 18px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateX(4px);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .metric-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .metric-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+    }
+
+    .metric-value {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .metric-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .metric-icon-box.balance {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .metric-icon-box.income {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .metric-icon-box.expense {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* Gauge Bar */
+    .ratio-bar-container {
+      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ratio-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .ratio-bar {
+      height: 8px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .ratio-fill {
+      height: 100%;
+      transition: width 0.5s ease;
+    }
+
+    .ratio-fill.income {
+      background-color: var(--success);
+    }
+
+    .ratio-fill.expense {
+      background-color: var(--danger);
+    }
+
+    /* Categories List Card */
+    .categories-list {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-top: 1px dashed rgba(255,255,255,0.06);
+      padding-top: 15px;
+    }
+
+    .category-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .category-row-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+
+    .category-title {
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .category-val {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .category-progress-bg {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .category-progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    /* Ledger Card & Tables */
+    .ledger-container {
+      margin-top: 25px;
+    }
+
+    .audit-table-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    .audit-table th {
+      background: rgba(255, 255, 255, 0.02);
+      padding: 14px 18px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .audit-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+
+    .audit-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .audit-table tr:hover td {
+      background: rgba(255, 255, 255, 0.01);
+      color: #fff;
+    }
+
+    .transaction-desc-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .transaction-icon-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .amount-cell {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .amount-cell.income {
+      color: var(--success);
+    }
+
+    .amount-cell.expense {
+      color: var(--danger);
+    }
+
+    .category-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .btn-delete {
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      border-radius: 8px;
+      color: var(--danger);
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+      background: var(--danger);
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+    }
+
+    .empty-state {
+      padding: 40px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      color: var(--text-muted);
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      opacity: 0.5;
+    }
+
+    /* Banner / Alerts */
+    .sync-status-banner {
+      background: rgba(99, 102, 241, 0.06);
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      border-radius: 12px;
+      padding: 12px 20px;
+      margin-bottom: 25px;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-secondary);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .sync-status-banner:hover {
+      background: rgba(99, 102, 241, 0.12);
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+    }
+
+    .sync-status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .status-dot.active {
+      background-color: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .status-dot.local {
+      background-color: var(--warning);
+      box-shadow: 0 0 8px var(--warning);
+    }
+
+    /* Toast Notification System */
+    .toast-container {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .toast {
+      background: rgba(14, 18, 30, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      min-width: 300px;
+      max-width: 400px;
+      animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.3s ease;
+    }
+
+    .toast.success {
+      border-left: 4px solid var(--success);
+    }
+
+    .toast.error {
+      border-left: 4px solid var(--danger);
+    }
+
+    .toast-icon {
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .toast-content {
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    /* Keyframes */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px) translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) translateX(0);
+      }
+    }
+
+    /* Clickable Employee Names in Ledger Table */
+    .clickable-user-name {
+      cursor: pointer;
+      text-decoration: underline;
+      transition: color 0.2s ease;
+    }
+    .clickable-user-name:hover {
+      color: #818cf8 !important;
+    }
+
+    /* Team Directory (Admin Only) */
+    .admin-directory-section {
+      border-top: 1px solid var(--border-color);
+      padding-top: 20px;
+      margin-top: 10px;
+    }
+    .team-list {
+      max-height: 250px;
+      overflow-y: auto;
+      margin-top: 15px;
+    }
+    .team-member-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .team-member-item:hover {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.25);
+      transform: translateX(4px);
+    }
+    .team-member-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .team-member-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .team-member-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .team-member-role {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .team-member-spending {
+      text-align: right;
+    }
+    .team-member-spent-label {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      display: block;
+    }
+    .team-member-spent-val {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--danger);
+    }
+
+    /* Glassmorphic Modal Overlay */
+    .ledger-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(4, 6, 14, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .ledger-modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .ledger-modal-content {
+      background: rgba(14, 18, 30, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      width: 90%;
+      max-width: 850px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 35px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+      transform: scale(0.95);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .ledger-modal-overlay.active .ledger-modal-content {
+      transform: scale(1);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 15px;
+    }
+    .modal-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+    }
+    .modal-close-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+    .modal-close-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    .export-actions-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+    .btn-export {
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #818cf8;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-export:hover {
+      background: rgba(99, 102, 241, 0.25);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .btn-export.excel {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+    .btn-export.excel:hover {
+      background: rgba(16, 185, 129, 0.25);
+      color: #fff;
+    }
+    .btn-export.pdf {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+    .btn-export.pdf:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    /* Premium Page Loading Overlay */
+    .page-loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg-space);
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .page-loader-overlay.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .loader-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .loader-img-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .loader-logo-pulsing {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      animation: pulseLogo 1.5s infinite alternate ease-in-out;
+    }
+    .loader-spinner-ring {
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      border: 3px solid rgba(99, 102, 241, 0.1);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spinRing 1s infinite linear;
+    }
+    .loader-text {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    
+    @keyframes pulseLogo {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      100% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 15px var(--primary-glow)); }
+    }
+    @keyframes spinRing {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+
+
+    /* Light Theme Styling Overrides */
+    body.light-theme {
+      --bg-space: #f1f5f9;
+      --card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.95) 100%);
+      --border-color: rgba(0, 0, 0, 0.08);
+      --border-hover: rgba(99, 102, 241, 0.6);
+      --primary: #4f46e5;
+      --primary-glow: rgba(99, 102, 241, 0.15);
+      --success: #059669;
+      --success-glow: rgba(5, 150, 105, 0.15);
+      --warning: #d97706;
+      --danger: #dc2626;
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+    }
+    body.light-theme .glass-card {
+      box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+    body.light-theme .glass-card:hover {
+      box-shadow: 
+        0 20px 45px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+    body.light-theme .brand-title-text {
+      background: linear-gradient(135deg, #0f172a 40%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    body.light-theme .card-title,
+    body.light-theme .user-name,
+    body.light-theme .modal-title,
+    body.light-theme .team-member-name {
+      color: var(--text-main);
+    }
+    body.light-theme .smart-input-field {
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--text-main);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    body.light-theme .smart-input-field:focus {
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 
+        0 0 15px rgba(99, 102, 241, 0.1),
+        inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    body.light-theme .metric-value {
+      color: var(--text-main);
+    }
+    body.light-theme .metric-card {
+      background: rgba(0, 0, 0, 0.01);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+    body.light-theme .metric-card:hover {
+      border-color: rgba(0, 0, 0, 0.08);
+    }
+    body.light-theme .audit-table th {
+      background: rgba(0, 0, 0, 0.02);
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+    body.light-theme .ledger-modal-content {
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid var(--border-color);
+    }
+    body.light-theme .bg-grid {
+      background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+    }
+    body.light-theme .cosmic-orb {
+      opacity: 0.08;
+    }
+    body.light-theme .filter-btn:hover {
+      color: var(--text-main);
+      background: rgba(0, 0, 0, 0.03);
+    }
+    body.light-theme .filter-btn.active {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--text-main);
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Hover highlights for Admin interactive cells */
+    .dashboard-container .audit-table tr td[onclick] {
+      transition: all 0.2s ease;
+    }
+    .dashboard-container .audit-table tr td[onclick]:hover {
+      background: rgba(99, 102, 241, 0.08);
+      color: #818cf8 !important;
+    }
+    .dashboard-container .audit-table tr td[onclick]:hover span {
+      color: #818cf8 !important;
+    }
+
+    /* Dynamic entry animation on layout change */
+    .layout-changing {
+      animation: layoutFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes layoutFadeIn {
+      from {
+        opacity: 0.3;
+        transform: scale(0.985) translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* Bouncing hover effect for Suggestion chips & Delete buttons */
+    .suggestion-chip {
+      transition: all 0.2s ease !important;
+    }
+    .suggestion-chip:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-delete svg {
+      transition: transform 0.2s ease;
+    }
+    .btn-delete:hover svg {
+      transform: scale(1.18) rotate(-8deg);
+    }
+
+    /* ==========================================================================
+       MINECRAFT PIXEL LAYOUT & ART THEME
+       ========================================================================== */
+    body.layout-minecraft {
+      font-family: 'VT323', monospace !important;
+      background-color: #1b1b1b !important;
+      background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.2) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.2) 2px, transparent 2px) !important;
+      background-size: 16px 16px !important;
+      image-rendering: pixelated !important;
+    }
+
+    body.layout-minecraft .cosmic-background {
+      display: none !important;
+    }
+
+    body.layout-minecraft * {
+      font-family: 'VT323', monospace !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    body.layout-minecraft .brand-title-text {
+      background: none !important;
+      -webkit-text-fill-color: initial !important;
+      color: #f59e0b !important;
+      text-shadow: 3px 3px 0 #000 !important;
+      font-size: 2.5rem !important;
+    }
+
+    body.layout-minecraft .glass-card {
+      background: #2b2b2b !important;
+      border: 4px solid #0f0f0f !important;
+      box-shadow: 
+        inset -4px -4px 0 #1b1b1b, 
+        inset 4px 4px 0 #5a5a5a,
+        0 8px 0 rgba(0, 0, 0, 0.4) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    body.layout-minecraft .glass-card:hover {
+      box-shadow: 
+        inset -4px -4px 0 #1b1b1b, 
+        inset 4px 4px 0 #5a5a5a,
+        0 12px 0 rgba(0, 0, 0, 0.5) !important;
+      transform: translateY(-2px);
+    }
+
+    body.layout-minecraft button, 
+    body.layout-minecraft .btn-add,
+    body.layout-minecraft .btn-export,
+    body.layout-minecraft .suggestion-chip,
+    body.layout-minecraft select {
+      background: #5c5c5c !important;
+      border: 3px solid #000000 !important;
+      box-shadow: 
+        inset -3px -3px 0 #3a3a3a, 
+        inset 3px 3px 0 #8c8c8c !important;
+      color: #dfdfdf !important;
+      text-shadow: 2px 2px 0 #000 !important;
+      font-size: 1.15rem !important;
+      cursor: pointer !important;
+      transition: none !important;
+      transform: none !important;
+      padding: 8px 14px !important;
+    }
+
+    body.layout-minecraft button:hover,
+    body.layout-minecraft .btn-add:hover,
+    body.layout-minecraft .btn-export:hover,
+    body.layout-minecraft .suggestion-chip:hover,
+    body.layout-minecraft select:hover {
+      background: #8c8c8c !important;
+      color: #ffffff !important;
+      border-color: #000000 !important;
+      box-shadow: 
+        inset -3px -3px 0 #555555, 
+        inset 3px 3px 0 #dbdbdb !important;
+    }
+
+    body.layout-minecraft .btn-add {
+      background: #5c8e32 !important;
+      box-shadow: 
+        inset -3px -3px 0 #3a5f20, 
+        inset 3px 3px 0 #8cdb43 !important;
+      color: #ffffff !important;
+    }
+
+    body.layout-minecraft .btn-add:hover {
+      background: #6ea83c !important;
+      box-shadow: 
+        inset -3px -3px 0 #4b7829, 
+        inset 3px 3px 0 #9ef04e !important;
+    }
+
+    body.layout-minecraft input {
+      background: #0f0f0f !important;
+      border: 3px solid #3c3c3c !important;
+      box-shadow: inset 3px 3px 0 #000000 !important;
+      color: #55ff55 !important;
+      font-size: 1.2rem !important;
+    }
+
+    body.layout-minecraft input::placeholder {
+      color: #2c6c2c !important;
+    }
+
+    body.layout-minecraft .audit-table th {
+      background: #1a1a1a !important;
+      color: #aaaaaa !important;
+      border: 2px solid #3c3c3c !important;
+      font-size: 1.15rem !important;
+      text-shadow: 1px 1px 0 #000 !important;
+    }
+
+    body.layout-minecraft .audit-table td {
+      border: 2px solid #151515 !important;
+      background: #222222 !important;
+      font-size: 1.2rem !important;
+    }
+
+    body.layout-minecraft .audit-table tr:hover td {
+      background: #2e2e2e !important;
+    }
+
+    body.layout-minecraft .amount-cell.income {
+      color: #55ff55 !important;
+      text-shadow: 1px 1px 0 #000 !important;
+    }
+
+    body.layout-minecraft .amount-cell.expense {
+      color: #ff5555 !important;
+      text-shadow: 1px 1px 0 #000 !important;
+    }
+
+    body.layout-minecraft .category-badge {
+      background: #3c3c3c !important;
+      border: 2px solid #000000 !important;
+      color: #55ffff !important;
+      padding: 2px 6px !important;
+    }
+
+    body.layout-minecraft .sync-status-banner {
+      background: #111111 !important;
+      border: 3px solid #3c3c3c !important;
+      box-shadow: inset 3px 3px 0 #000000 !important;
+    }
+
+    body.layout-minecraft .status-dot {
+      border-radius: 0 !important;
+      width: 10px !important;
+      height: 10px !important;
+    }
+
+    body.layout-minecraft .user-profile-chip {
+      background: #3c3c3c !important;
+      border: 3px solid #111111 !important;
+      box-shadow: inset -2px -2px 0 #222222, inset 2px 2px 0 #5c5c5c !important;
+    }
+
+    body.layout-minecraft .user-avatar {
+      background: #f59e0b !important;
+      color: #000000 !important;
+      border: 2px solid #000000 !important;
+    }
+
+    body.layout-minecraft .metric-card {
+      background: #1e1e1e !important;
+      border: 3px solid #111111 !important;
+      box-shadow: inset 3px 3px 0 #0c0c0c !important;
+    }
+
+    body.layout-minecraft .metric-value {
+      font-size: 1.65rem !important;
+      text-shadow: 2px 2px 0 #000 !important;
+    }
+
+    body.layout-minecraft #valNetBalance {
+      color: #ffff55 !important;
+    }
+
+    body.layout-minecraft .metric-icon-box {
+      border: 2px solid #000000 !important;
+      background: #3c3c3c !important;
+    }
+
+    body.layout-minecraft .ratio-bar {
+      border: 2px solid #000000 !important;
+      height: 12px !important;
+    }
+
+    body.layout-minecraft .category-progress-bg {
+      border: 2px solid #000000 !important;
+      height: 10px !important;
+      background: #0f0f0f !important;
+    }
+
+    body.layout-minecraft .preview-panel {
+      background: #1a1a1a !important;
+      border: 3px solid #3c3c3c !important;
+      box-shadow: inset 3px 3px 0 #000000 !important;
+    }
+
+    body.layout-minecraft .ledger-modal-content {
+      background: #2b2b2b !important;
+      border: 4px solid #0f0f0f !important;
+      box-shadow: inset -4px -4px 0 #1b1b1b, inset 4px 4px 0 #5a5a5a !important;
+    }
+
+    body.layout-minecraft .brand-icon img,
+    body.layout-minecraft .transaction-icon-box {
+      animation: bobbing 2s infinite ease-in-out;
+    }
+
+    @keyframes bobbing {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Premium Page Loading Overlay -->
+  <div id="pageLoader" class="page-loader-overlay">
+    <div class="loader-content">
+      <div class="loader-img-container">
+        <img src="WhatsApp_Image_2026-06-05_at_19.30.05-removebg-preview.png" alt="Loading ADCS..." class="loader-logo-pulsing" />
+        <div class="loader-spinner-ring"></div>
+      </div>
+      <div class="loader-text">Securing Ledger Session...</div>
+    </div>
+  </div>
+
+  <!-- FOUC Prevention Script -->
+  <script>
+    try {
+      if (localStorage.getItem("theme") === "light") {
+        document.body.classList.add("light-theme");
+      }
+    } catch (e) {
+      console.warn("Theme storage access failed:", e);
+    }
+  </script>
+
+  <!-- Background Orbs and Grid -->
+  <div class="cosmic-background">
+    <div class="bg-grid"></div>
+    <div class="cosmic-orb orb-indigo"></div>
+    <div class="cosmic-orb orb-emerald"></div>
+    <div class="cosmic-orb orb-amber"></div>
+  </div>
+
+  <div class="dashboard-container">
+    
+    <!-- Header -->
+    <header class="dashboard-header">
+      <div class="header-brand">
+        <div class="brand-icon" style="background: transparent; box-shadow: none; border-radius: 0; width: 180px; height: 60px; display: flex; align-items: center; justify-content: flex-start;">
+          <img src="WhatsApp_Image_2026-06-05_at_19.30.05-removebg-preview.png" alt="ADCS Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center;">
+        <div class="user-profile-chip" id="userProfileChip">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div class="user-details">
+            <span class="user-name" id="userName">Local User</span>
+            <span class="user-role-badge" id="userRole">Sandbox Mode</span>
+          </div>
+        </div>
+
+        <!-- Layout Switcher Dropdown -->
+        <div class="layout-switcher-container" style="margin-left: 10px;">
+          <select id="layoutSelect" onchange="changeLayout(this.value)" autocomplete="off" title="Choose workspace grid layout">
+            <option value="standard">Standard Grid</option>
+            <option value="wide">Analytics Grid</option>
+            <option value="minimalist">Minimalist Focus</option>
+            <option value="minecraft">Minecraft Pixel Grid</option>
+          </select>
+        </div>
+
+        <!-- Theme Toggle Button -->
+        <button id="themeToggleBtn" class="btn-theme-toggle" onclick="toggleTheme()" title="Toggle appearance theme" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 50%; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; margin-left: 10px;">
+          <svg id="sunIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg id="moonIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: none;">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+
+        <button class="btn-signout" onclick="handleLogout()" title="Return to authentication gate">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Sign Out
+        </button>
+      </div>
+    </header>
+
+    <!-- Secure Local Ledger Status Banner -->
+    <div class="sync-status-banner" id="syncBanner" onclick="openSecurityDetailsModal()" style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); cursor: pointer; transition: all 0.3s ease;">
+      <div class="sync-status-indicator">
+        <span class="status-dot active" id="statusDot" style="background-color: var(--success); box-shadow: 0 0 8px var(--success);"></span>
+        <span id="syncText" style="color: var(--success); font-weight: 600;">Secure Local Ledger Active</span>
+      </div>
+      <div id="syncDetails" style="font-size: 0.75rem; color: var(--text-secondary);">
+        All transaction records are saved securely inside your browser's private sandbox. (Click to verify Security Profile)
+      </div>
+    </div>
+
+    <!-- Main Workspace Grid -->
+    <div class="dashboard-workspace-grid layout-standard" id="dashboardWorkspaceGrid">
+      <script>
+        try {
+          const savedLayout = localStorage.getItem("dashboard_layout") || "standard";
+          if (savedLayout !== "standard") {
+            const grid = document.getElementById("dashboardWorkspaceGrid");
+            if (grid) {
+              grid.classList.remove("layout-standard");
+              grid.classList.add("layout-" + savedLayout);
+            }
+            if (savedLayout === "minecraft") {
+              document.body.classList.add("layout-minecraft");
+            }
+          }
+          const sel = document.getElementById("layoutSelect");
+          if (sel) {
+            sel.value = savedLayout;
+          }
+        } catch (e) {
+          console.warn("Layout storage access failed:", e);
+        }
+      </script>
+      
+      <!-- Left Column: Smart Entry Panel -->
+      <section class="glass-card" id="smartEntryCard" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <h2 class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Smart Statement Entry
+          </h2>
+          
+          <div class="input-section">
+            <div class="smart-input-container">
+              <div class="smart-input-wrapper">
+                <span class="smart-input-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                </span>
+                <input 
+                  type="text" 
+                  id="smartInput" 
+                  class="smart-input-field" 
+                  placeholder="Type a log e.g., Got 2000 rps today added in it..." 
+                  autocomplete="off" 
+                  oninput="handleInputLive()"
+                  onkeydown="handleInputKeyDown(event)"
+                />
+              </div>
+            </div>
+
+            <!-- Suggestion Chips -->
+            <div class="suggestions-container">
+              <span class="suggestion-label">Try these statement logs</span>
+              <div class="chips-row">
+                <div class="suggestion-chip" onclick="applySuggestion('Received monthly payroll bonus ₹15000')">
+                  "Received monthly payroll bonus ₹15000"
+                </div>
+                <div class="suggestion-chip" onclick="applySuggestion('Office supplies expense cost 1250')">
+                  "Office supplies expense cost 1250"
+                </div>
+                <div class="suggestion-chip" onclick="applySuggestion('Client business dinner cost 4500')">
+                  "Client business dinner cost 4500"
+                </div>
+                <div class="suggestion-chip" onclick="applySuggestion('Annual server hosting rent 8900')">
+                  "Annual server hosting rent 8900"
+                </div>
+                <div class="suggestion-chip" onclick="applySuggestion('Fuel charges for company vehicle 1800')">
+                  "Fuel charges for company vehicle 1800"
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Parser Preview Panel -->
+            <div class="preview-panel" id="previewPanel">
+              <div class="preview-info">
+                <div class="preview-header">
+                  <span class="preview-tag expense" id="previewTag">Expense</span>
+                  <button class="preview-toggle-btn" onclick="togglePreviewType()">Override to Income</button>
+                </div>
+                <div class="preview-desc empty" id="previewDesc">Type to see live parsing...</div>
+              </div>
+              <div class="preview-amount empty" id="previewAmount">₹ --</div>
+            </div>
+
+          </div>
+        </div>
+
+        <button class="btn-add" id="btnAdd" onclick="submitTransaction()" style="margin-top: 25px;" disabled>
+          Log Secure Transaction
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </button>
+      </section>
+
+      <!-- Right Column: Financial Insights Dashboard -->
+      <section class="glass-card" id="financialSummaryCard">
+        <h2 class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5">
+            <rect x="2" y="2" width="20" height="20" rx="2" ry="2"/>
+            <line x1="12" y1="18" x2="12" y2="12"/>
+            <line x1="9" y1="15" x2="9" y2="12"/>
+            <line x1="15" y1="16" x2="15" y2="12"/>
+          </svg>
+          Financial Summary
+        </h2>
+
+        <div class="filter-bar">
+          <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 500;">Filter Period:</span>
+          <div class="filter-buttons" style="display: flex; gap: 6px;">
+            <button class="filter-btn active" onclick="setPeriodFilter('all', this)">All Time</button>
+            <button class="filter-btn" onclick="setPeriodFilter('daily', this)">Daily</button>
+            <button class="filter-btn" onclick="setPeriodFilter('monthly', this)">Monthly</button>
+            <button class="filter-btn" onclick="setPeriodFilter('yearly', this)">Yearly</button>
+          </div>
+        </div>
+
+        <div class="metric-grid">
+          <!-- Balance -->
+          <div class="metric-card">
+            <div class="metric-details">
+              <span class="metric-label">Net Balance</span>
+              <span class="metric-value" id="valNetBalance">₹0</span>
+            </div>
+            <div class="metric-icon-box balance">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Income -->
+          <div class="metric-card">
+            <div class="metric-details">
+              <span class="metric-label">Total Inflow</span>
+              <span class="metric-value" style="color: var(--success);" id="valTotalIncome">₹0</span>
+            </div>
+            <div class="metric-icon-box income">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Expenses -->
+          <div class="metric-card">
+            <div class="metric-details">
+              <span class="metric-label">Total Outflow</span>
+              <span class="metric-value" style="color: var(--danger);" id="valTotalExpense">₹0</span>
+            </div>
+            <div class="metric-icon-box expense">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Budget Usage Gauge -->
+        <div class="ratio-bar-container">
+          <div class="ratio-bar-labels">
+            <span>Expenses Outflow Distribution</span>
+            <span id="expenseRatioPct">0% of income</span>
+          </div>
+          <div class="ratio-bar">
+            <div class="ratio-fill income" id="ratioIn" style="width: 100%"></div>
+            <div class="ratio-fill expense" id="ratioOut" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Category Progress Bars -->
+        <div class="categories-list" id="categoryProgressContainer">
+          <!-- Dynamically Generated Category Breakdown -->
+        </div>
+
+        <!-- Team Directory (Admin Only) -->
+        <div class="admin-directory-section" id="adminDirectorySection" style="display: none;">
+          <h3 class="card-subtitle" style="font-size: 0.95rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin-bottom: 5px; margin-top: 15px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Team Spending Directory
+          </h3>
+          <span style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 12px;">Click a team member to view and export statement sheets.</span>
+          <div class="team-list" id="adminTeamList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Transaction History Ledger -->
+      <section class="glass-card ledger-container" id="ledgerBookCard">
+        <h2 class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2.5">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Transaction Ledger Book
+        </h2>
+
+        <div class="audit-table-wrapper">
+          <table class="audit-table" id="transactionTable">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Category</th>
+                <th id="thUser" style="display: none;">Logged By</th>
+                <th>Date / Time</th>
+                <th>Logged Amount</th>
+                <th style="text-align: right; width: 80px;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerTableBody">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div> <!-- closes dashboard-workspace-grid -->
+  </div> <!-- closes dashboard-container -->
+
+  <!-- Toast Notification System -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Services -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    // Global Application State
+    let auth = null;
+    let db = null;
+    let isFirebaseConfigured = false;
+    let currentUserProfile = null;
+    let transactions = [];
+    let activeParsedTransaction = null; // Stores parsed preview object
+    let activePeriodFilter = 'all'; // Default period filter
+    let unsubscribeTransactions = null; // Store query unsubscribe function
+    let allUsers = [];
+    let allTransactionsMap = {};
+
+    // Curated Premium Theme Palettes Matrix
+    const UI_THEMES = [
+      {
+        name: "Midnight Indigo",
+        primary: "#6366f1",
+        primaryGlow: "rgba(99, 102, 241, 0.3)",
+        bgSpace: "#06070a",
+        success: "#10b981",
+        successGlow: "rgba(16, 185, 129, 0.2)",
+        danger: "#ef4444",
+        dangerGlow: "rgba(239, 68, 68, 0.2)",
+        warning: "#f59e0b",
+        warningGlow: "rgba(245, 158, 11, 0.2)"
+      },
+      {
+        name: "Cyberpunk Violet",
+        primary: "#a855f7",
+        primaryGlow: "rgba(168, 85, 247, 0.3)",
+        bgSpace: "#080410",
+        success: "#22c55e",
+        successGlow: "rgba(34, 197, 94, 0.2)",
+        danger: "#f43f5e",
+        dangerGlow: "rgba(244, 63, 94, 0.2)",
+        warning: "#eab308",
+        warningGlow: "rgba(234, 179, 8, 0.2)"
+      },
+      {
+        name: "Aurora Emerald",
+        primary: "#10b981",
+        primaryGlow: "rgba(16, 185, 129, 0.3)",
+        bgSpace: "#030a07",
+        success: "#06b6d4",
+        successGlow: "rgba(6, 182, 212, 0.2)",
+        danger: "#f43f5e",
+        dangerGlow: "rgba(244, 63, 94, 0.2)",
+        warning: "#f59e0b",
+        warningGlow: "rgba(245, 158, 11, 0.2)"
+      },
+      {
+        name: "Sunset Crimson",
+        primary: "#f43f5e",
+        primaryGlow: "rgba(244, 63, 94, 0.3)",
+        bgSpace: "#0b0406",
+        success: "#10b981",
+        successGlow: "rgba(16, 185, 129, 0.2)",
+        danger: "#e11d48",
+        dangerGlow: "rgba(225, 29, 72, 0.2)",
+        warning: "#f59e0b",
+        warningGlow: "rgba(245, 158, 11, 0.2)"
+      },
+      {
+        name: "Solar Amber",
+        primary: "#f59e0b",
+        primaryGlow: "rgba(245, 158, 11, 0.3)",
+        bgSpace: "#090603",
+        success: "#10b981",
+        successGlow: "rgba(16, 185, 129, 0.2)",
+        danger: "#ef4444",
+        dangerGlow: "rgba(239, 68, 68, 0.2)",
+        warning: "#d97706",
+        warningGlow: "rgba(217, 119, 6, 0.2)"
+      },
+      {
+        name: "Arctic Teal",
+        primary: "#06b6d4",
+        primaryGlow: "rgba(6, 182, 212, 0.3)",
+        bgSpace: "#02080b",
+        success: "#10b981",
+        successGlow: "rgba(16, 185, 129, 0.2)",
+        danger: "#ef4444",
+        dangerGlow: "rgba(239, 68, 68, 0.2)",
+        warning: "#f59e0b",
+        warningGlow: "rgba(245, 158, 11, 0.2)"
+      }
+    ];
+
+    function applyAestheticTheme(theme) {
+      const root = document.documentElement;
+      root.style.setProperty('--primary', theme.primary);
+      root.style.setProperty('--primary-glow', theme.primaryGlow);
+      root.style.setProperty('--bg-space', theme.bgSpace);
+      root.style.setProperty('--success', theme.success);
+      root.style.setProperty('--success-glow', theme.successGlow);
+      root.style.setProperty('--danger', theme.danger);
+      root.style.setProperty('--danger-glow', theme.dangerGlow);
+      root.style.setProperty('--warning', theme.warning);
+      root.style.setProperty('--warning-glow', theme.warningGlow);
+
+      // Randomize background orb gradients & positions
+      const orbIndigo = document.querySelector('.orb-indigo');
+      const orbEmerald = document.querySelector('.orb-emerald');
+      const orbAmber = document.querySelector('.orb-amber');
+
+      if (orbIndigo) {
+        orbIndigo.style.background = `radial-gradient(circle, ${theme.primary} 0%, rgba(0,0,0,0) 70%)`;
+        orbIndigo.style.width = `${Math.floor(Math.random() * 20) + 35}vw`;
+        orbIndigo.style.height = `${Math.floor(Math.random() * 20) + 35}vw`;
+        orbIndigo.style.top = `${Math.floor(Math.random() * 30) - 20}vw`;
+        orbIndigo.style.left = `${Math.floor(Math.random() * 30) - 20}vw`;
+      }
+      if (orbEmerald) {
+        orbEmerald.style.background = `radial-gradient(circle, ${theme.success} 0%, rgba(0,0,0,0) 70%)`;
+        orbEmerald.style.width = `${Math.floor(Math.random() * 20) + 30}vw`;
+        orbEmerald.style.height = `${Math.floor(Math.random() * 20) + 30}vw`;
+        orbEmerald.style.bottom = `${Math.floor(Math.random() * 30) - 15}vw`;
+        orbEmerald.style.right = `${Math.floor(Math.random() * 30) - 15}vw`;
+      }
+      if (orbAmber) {
+        orbAmber.style.background = `radial-gradient(circle, ${theme.warning} 0%, rgba(0,0,0,0) 70%)`;
+        orbAmber.style.width = `${Math.floor(Math.random() * 15) + 25}vw`;
+        orbAmber.style.height = `${Math.floor(Math.random() * 15) + 25}vw`;
+        orbAmber.style.top = `${Math.floor(Math.random() * 40) + 20}%`;
+        orbAmber.style.left = `${Math.floor(Math.random() * 40) + 25}%`;
+      }
+    }
+
+    // Apply a random theme immediately on load
+    const activeRandomTheme = UI_THEMES[Math.floor(Math.random() * UI_THEMES.length)];
+    applyAestheticTheme(activeRandomTheme);
+
+    // Layout Management Functions
+    function applyLayout(layoutName) {
+      const workspace = document.getElementById("dashboardWorkspaceGrid");
+      const selector = document.getElementById("layoutSelect");
+      if (!workspace) return;
+      
+      // Trigger grid switch animation
+      workspace.classList.remove("layout-changing");
+      void workspace.offsetWidth; // Trigger reflow to restart animation
+      workspace.classList.add("layout-changing");
+      
+      workspace.classList.remove("layout-standard", "layout-wide", "layout-minimalist", "layout-minecraft");
+      workspace.classList.add(`layout-${layoutName}`);
+      
+      if (layoutName === "minecraft") {
+        document.body.classList.add("layout-minecraft");
+      } else {
+        document.body.classList.remove("layout-minecraft");
+      }
+      
+      if (selector) {
+        selector.value = layoutName;
+      }
+      try {
+        localStorage.setItem("dashboard_layout", layoutName);
+      } catch (e) {
+        console.warn("Failed to set layout in localStorage:", e);
+      }
+    }
+    
+    function changeLayout(val) {
+      applyLayout(val);
+    }
+
+    // 1. Initialize Firebase if config exists
+    if (window.firebaseConfig && 
+        window.firebaseConfig.apiKey && 
+        window.firebaseConfig.apiKey !== "YOUR_API_KEY_HERE" && 
+        !window.firebaseConfig.apiKey.includes("YOUR_")) {
+      try {
+        firebase.initializeApp(window.firebaseConfig);
+        firebase.firestore.setLogLevel('error');
+        auth = firebase.auth();
+        db = firebase.firestore();
+        isFirebaseConfigured = true;
+
+        // Enable Offline Persistence for offline operation support
+        db.enablePersistence()
+          .catch((err) => {
+            if (err.code == 'failed-precondition') {
+              console.warn("Multiple tabs open, persistence can only be enabled in one tab at a time.");
+            } else if (err.code == 'unimplemented') {
+              console.warn("The current browser does not support persistence.");
+            }
+          });
+      } catch (e) {
+        console.error("Firebase connection error: ", e);
+      }
+    }
+
+    // 2. Application Entry & Listener Binding
+    document.addEventListener("DOMContentLoaded", () => {
+      // Initialize saved layout preference
+      let savedLayout = "standard";
+      try {
+        savedLayout = localStorage.getItem("dashboard_layout") || "standard";
+      } catch (e) {
+        console.warn("Failed to get layout from localStorage:", e);
+      }
+      applyLayout(savedLayout);
+
+      // Initialize theme icons
+      const isLight = document.body.classList.contains("light-theme");
+      const sunIcon = document.getElementById("sunIcon");
+      const moonIcon = document.getElementById("moonIcon");
+      if (sunIcon && moonIcon) {
+        sunIcon.style.display = isLight ? "none" : "block";
+        moonIcon.style.display = isLight ? "block" : "none";
+      }
+
+      // Modal click-outside listener to close the modal
+      const modalOverlay = document.getElementById("ledgerModalOverlay");
+      if (modalOverlay) {
+        modalOverlay.addEventListener("click", (e) => {
+          if (e.target.id === "ledgerModalOverlay") {
+            closeEmployeeModal();
+          }
+        });
+      }
+
+      // Security Modal click-outside listener
+      const securityOverlay = document.getElementById("securityModalOverlay");
+      if (securityOverlay) {
+        securityOverlay.addEventListener("click", (e) => {
+          if (e.target.id === "securityModalOverlay") {
+            closeSecurityModal();
+          }
+        });
+      }
+
+      // Configure Auth redirection & Database listener
+      if (isFirebaseConfigured && auth) {
+        setupFirebaseSync();
+      } else {
+        setupLocalStorageSync();
+      }
+    });
+
+    // 3. Database Sync Configurations
+    function setupFirebaseSync() {
+      const statusDot = document.getElementById("statusDot");
+      const syncText = document.getElementById("syncText");
+      const syncDetails = document.getElementById("syncDetails");
+
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          // Fetch the user's Firestore profile to get their proper name and role
+          db.collection("users").doc(user.uid).get()
+            .then((doc) => {
+              if (doc.exists) {
+                currentUserProfile = doc.data();
+                document.getElementById("userName").innerText = currentUserProfile.name;
+                document.getElementById("userRole").innerText = currentUserProfile.role.replace("_", " ");
+                document.getElementById("userAvatar").innerText = currentUserProfile.name.charAt(0).toUpperCase();
+                localStorage.setItem("active_user", JSON.stringify(currentUserProfile));
+              } else {
+                console.warn("User profile not found in Firestore.");
+              }
+              
+              // Now start listening to transactions using their profile role
+              startTransactionListener(user.uid);
+            })
+            .catch((err) => {
+              console.error("Firestore user fetch error: ", err);
+              // Fallback to loading transactions with user uid anyway
+              startTransactionListener(user.uid);
+            });
+
+          statusDot.className = "status-dot active";
+          statusDot.style.backgroundColor = "var(--success)";
+          statusDot.style.boxShadow = "0 0 8px var(--success)";
+          syncText.innerText = "Secure Firebase Cloud Sync Active";
+          syncText.style.color = "var(--success)";
+          syncDetails.innerText = "Real-time sync and backup are enabled across all sessions.";
+        } else {
+          // No user session, redirect to login page
+          localStorage.removeItem("active_user");
+          window.location.href = "login.html";
+        }
+      });
+    }
+
+    // Role-Aware Transaction Listener (Admin queries nested user ledgers, standard queries self)
+    function startTransactionListener(uid) {
+      if (unsubscribeTransactions) {
+        unsubscribeTransactions();
+      }
+
+      const isAdmin = currentUserProfile && currentUserProfile.role === "ADMIN";
+
+      if (isAdmin) {
+        showToast("Admin access: Syncing all employee ledger records...");
+        let activeListeners = [];
+        
+        // Listen to changes in the users collection to fetch all employee transactions
+        const unsubscribeUsers = db.collection("users").onSnapshot((usersSnapshot) => {
+          allUsers = [];
+          usersSnapshot.forEach((userDoc) => {
+            allUsers.push({
+              uid: userDoc.id,
+              ...userDoc.data()
+            });
+          });
+
+          // Unsubscribe previous user listeners to rebuild cleanly
+          activeListeners.forEach(unsub => unsub());
+          activeListeners = [];
+
+          usersSnapshot.forEach((userDoc) => {
+            const empUid = userDoc.id;
+
+            // Subscribe to each individual user's transactions subcollection
+            const unsubEmp = db.collection("users").doc(empUid).collection("transactions")
+              .onSnapshot((transSnapshot) => {
+                const empTrans = [];
+                transSnapshot.forEach((doc) => {
+                  empTrans.push({
+                    id: doc.id,
+                    ...doc.data()
+                  });
+                });
+
+                allTransactionsMap[empUid] = empTrans;
+
+                // Merge all user transactions into the global array
+                transactions = [];
+                Object.values(allTransactionsMap).forEach(list => {
+                  transactions.push(...list);
+                });
+
+                // Sort in memory to keep newest transactions first
+                transactions.sort((a, b) => new Date(b.dateStr) - new Date(a.dateStr));
+
+                updateUI();
+              }, (err) => {
+                console.warn(`Failed to listen to transactions for user ${empUid}:`, err);
+              });
+
+            activeListeners.push(unsubEmp);
+          });
+        }, (error) => {
+          console.error("Admin user collection query error: ", error);
+          showToast("Cloud sync failed. Operating in local-only backup.", "error");
+          setupLocalStorageSync();
+        });
+
+        // Set global unsubscribe function to clean up all nested sub-listeners
+        unsubscribeTransactions = () => {
+          unsubscribeUsers();
+          activeListeners.forEach(unsub => unsub());
+        };
+      } else {
+        const query = db.collection("users").doc(uid).collection("transactions");
+        unsubscribeTransactions = query.onSnapshot((snapshot) => {
+          transactions = [];
+          snapshot.forEach((doc) => {
+            transactions.push({
+              id: doc.id,
+              ...doc.data()
+            });
+          });
+          
+          // Sort in memory
+          transactions.sort((a, b) => new Date(b.dateStr) - new Date(a.dateStr));
+          
+          updateUI();
+        }, (error) => {
+          console.error("Firestore transaction query error: ", error);
+          showToast("Cloud sync failed. Operating in local-only backup.", "error");
+          setupLocalStorageSync();
+        });
+      }
+    }
+
+    // Set active filter period
+    function setPeriodFilter(period, btn) {
+      activePeriodFilter = period;
+      
+      // Update button classes
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      if (btn) {
+        btn.classList.add("active");
+      }
+      
+      updateUI();
+    }
+
+    function setupLocalStorageSync() {
+      const statusDot = document.getElementById("statusDot");
+      const syncText = document.getElementById("syncText");
+      const syncDetails = document.getElementById("syncDetails");
+
+      statusDot.className = "status-dot local";
+      statusDot.style.backgroundColor = "var(--warning)";
+      statusDot.style.boxShadow = "0 0 8px var(--warning)";
+      syncText.innerText = "Running in Local Sandbox Mode";
+      syncText.style.color = "var(--warning)";
+      syncDetails.innerText = "Offline sandbox active. Transactions saved in local browser storage.";
+
+      // Check local session
+      const userStr = localStorage.getItem("active_user");
+      if (userStr) {
+        try {
+          currentUserProfile = JSON.parse(userStr);
+          document.getElementById("userName").innerText = currentUserProfile.name;
+          document.getElementById("userRole").innerText = currentUserProfile.role.replace("_", " ");
+          document.getElementById("userAvatar").innerText = currentUserProfile.name.charAt(0).toUpperCase();
+        } catch (e) {
+          console.error("Local user parsing error: ", e);
+        }
+      } else {
+        // Enforce session
+        window.location.href = "login.html";
+        return;
+      }
+
+      // Load transactions from localStorage
+      const localData = localStorage.getItem("local_transactions");
+      if (localData) {
+        try {
+          transactions = JSON.parse(localData);
+        } catch (e) {
+          console.error("Local data parsing error: ", e);
+          transactions = [];
+        }
+      }
+      updateUI();
+    }
+
+    // 4. Natural Language Parser Logic
+    function parseTransactionText(text) {
+      const cleanedText = text.trim();
+      if (!cleanedText) return null;
+
+      // Numerical Extraction (Extracting digits including floating points)
+      // Handles: 2000 rps, rs 2000, 500, cost 12.50, ₹1500, inr 450
+      const numRegex = /\b\d+(?:\.\d{1,2})?\b/g;
+      const numbers = [];
+      let numMatch;
+
+      while ((numMatch = numRegex.exec(cleanedText)) !== null) {
+        numbers.push({
+          value: parseFloat(numMatch[0]),
+          index: numMatch.index,
+          length: numMatch[0].length
+        });
+      }
+
+      let amount = null;
+      if (numbers.length > 0) {
+        // Take the first number as primary amount
+        amount = numbers[0].value;
+      }
+
+      // Keywords matching for Type determination
+      const incomeKeywords = ['got', 'received', 'salary', 'earned', 'added', 'income', 'credited', 'bonus', 'win', 'won', 'refund', 'plus', 'add'];
+      const expenseKeywords = ['spent', 'travelling', 'travel', 'cost', 'paid', 'dine', 'dinner', 'lunch', 'food', 'coffee', 'bill', 'expense', 'bought', 'purchase', 'shopping', 'fee', 'rent', 'minus', 'lost', 'loss', 'charge', 'charges', 'moe', 'more'];
+
+      const lowerText = cleanedText.toLowerCase();
+      let type = 'expense'; // default
+      let hasIncome = incomeKeywords.some(kw => lowerText.includes(kw));
+      let hasExpense = expenseKeywords.some(kw => lowerText.includes(kw));
+
+      if (hasIncome && !hasExpense) {
+        type = 'income';
+      } else if (hasExpense && !hasIncome) {
+        type = 'expense';
+      } else if (hasIncome && hasExpense) {
+        // Both present, check which one appears first
+        let firstIncome = Infinity;
+        let firstExpense = Infinity;
+        incomeKeywords.forEach(kw => {
+          const idx = lowerText.indexOf(kw);
+          if (idx !== -1 && idx < firstIncome) firstIncome = idx;
+        });
+        expenseKeywords.forEach(kw => {
+          const idx = lowerText.indexOf(kw);
+          if (idx !== -1 && idx < firstExpense) firstExpense = idx;
+        });
+        type = firstIncome < firstExpense ? 'income' : 'expense';
+      } else {
+        // No explicit keywords, inspect symbols (+ / -)
+        const plusIdx = cleanedText.indexOf('+');
+        const minusIdx = cleanedText.indexOf('-');
+        if (plusIdx !== -1 && (minusIdx === -1 || plusIdx < minusIdx)) {
+          type = 'income';
+        } else if (minusIdx !== -1 && (plusIdx === -1 || minusIdx < plusIdx)) {
+          type = 'expense';
+        } else {
+          type = 'expense'; // default fallback
+        }
+      }
+
+      // Strip the number and any immediate currency notations surrounding it for the description
+      let desc = cleanedText;
+      if (numbers.length > 0) {
+        const numObj = numbers[0];
+        let startPart = cleanedText.substring(0, numObj.index).trim();
+        let endPart = cleanedText.substring(numObj.index + numObj.length).trim();
+
+        const currencyRegex = /(?:rs\.?|rps\.?|inr\.?|rupees|₹)/i;
+
+        // Clean currency notations from trailing edge of startPart
+        const startWords = startPart.split(/\s+/);
+        if (startWords.length > 0 && currencyRegex.test(startWords[startWords.length - 1])) {
+          startWords.pop();
+          startPart = startWords.join(' ').trim();
+        }
+
+        // Clean currency notations from leading edge of endPart
+        const endWords = endPart.split(/\s+/);
+        if (endWords.length > 0 && currencyRegex.test(endWords[0])) {
+          endWords.shift();
+          endPart = endWords.join(' ').trim();
+        }
+
+        desc = (startPart + ' ' + endPart).trim();
+      }
+
+      // Cleanup multi-spaces
+      desc = desc.replace(/\s+/g, ' ').trim();
+
+      // Clean leading and trailing filler words
+      let cleanDesc = desc;
+      const cleanPrefixes = [
+        /^(?:got|received|added|spent|paid|cost\s+on|cost\s+of|cost)\b/i,
+        /^(?:and|on|for|in|today|yesterday)\b/i
+      ];
+      const cleanSuffixes = [
+        /\b(?:added|in\s+it|today|yesterday)$/i,
+        /\b(?:and|on|for|in)$/i
+      ];
+
+      let changed = true;
+      while (changed) {
+        let original = cleanDesc;
+        cleanPrefixes.forEach(regex => {
+          cleanDesc = cleanDesc.replace(regex, '').trim();
+        });
+        cleanSuffixes.forEach(regex => {
+          cleanDesc = cleanDesc.replace(regex, '').trim();
+        });
+        if (cleanDesc === original) {
+          changed = false;
+        }
+      }
+
+      // If text cleaning stripped everything, fallback to original stripped representation
+      if (cleanDesc.length > 0) {
+        desc = cleanDesc;
+      }
+
+      // Capitalize first letter
+      if (desc.length > 0) {
+        desc = desc.charAt(0).toUpperCase() + desc.slice(1);
+      } else {
+        desc = type === 'income' ? 'Income Ref' : 'Expense Ref';
+      }
+
+      return {
+        amount,
+        type,
+        description: desc
+      };
+    }
+
+    // Determine category based on description tags
+    function getCategoryAndIcon(desc, type) {
+      const d = desc.toLowerCase();
+      if (type === 'income') {
+        return { name: 'Income', icon: '💼', color: 'var(--success)' };
+      }
+      if (d.includes('travel') || d.includes('travelling') || d.includes('uber') || d.includes('cab') || d.includes('auto') || d.includes('fuel') || d.includes('petrol') || d.includes('bus') || d.includes('train')) {
+        return { name: 'Travel', icon: '🚗', color: 'var(--primary)' };
+      }
+      if (d.includes('dine') || d.includes('dining') || d.includes('food') || d.includes('restaurant') || d.includes('coffee') || d.includes('cafe') || d.includes('swiggy') || d.includes('zomato') || d.includes('moe') || d.includes('more')) {
+        return { name: 'Dining', icon: '🍔', color: 'var(--warning)' };
+      }
+      if (d.includes('bill') || d.includes('rent') || d.includes('electricity') || d.includes('wifi') || d.includes('internet') || d.includes('recharge')) {
+        return { name: 'Utilities', icon: '⚡', color: 'var(--danger)' };
+      }
+      return { name: 'Other', icon: '📝', color: 'var(--text-muted)' };
+    }
+
+    // 5. UI Event Handlers
+    function handleInputLive() {
+      const text = document.getElementById("smartInput").value;
+      const previewPanel = document.getElementById("previewPanel");
+      const previewTag = document.getElementById("previewTag");
+      const previewDesc = document.getElementById("previewDesc");
+      const previewAmount = document.getElementById("previewAmount");
+      const btnAdd = document.getElementById("btnAdd");
+
+      if (!text.trim()) {
+        activeParsedTransaction = null;
+        previewPanel.className = "preview-panel";
+        previewDesc.innerText = "Type to see live parsing...";
+        previewDesc.classList.add("empty");
+        previewTag.innerText = "Expense";
+        previewTag.className = "preview-tag expense";
+        previewAmount.innerText = "₹ --";
+        previewAmount.className = "preview-amount empty";
+        btnAdd.disabled = true;
+        return;
+      }
+
+      // Run Parser
+      const parsed = parseTransactionText(text);
+      activeParsedTransaction = parsed;
+
+      // Update Panel Styles
+      previewPanel.className = `preview-panel ${parsed.type}`;
+      
+      // Update Tag
+      previewTag.innerText = parsed.type;
+      previewTag.className = `preview-tag ${parsed.type}`;
+      
+      // Update Toggle Type Button Label
+      const toggleBtn = previewPanel.querySelector(".preview-toggle-btn");
+      if (toggleBtn) {
+        toggleBtn.innerText = `Override to ${parsed.type === 'income' ? 'Expense' : 'Income'}`;
+      }
+
+      // Update Description
+      previewDesc.innerText = parsed.description;
+      previewDesc.classList.remove("empty");
+
+      // Update Amount
+      if (parsed.amount !== null) {
+        previewAmount.innerText = `₹${parsed.amount.toLocaleString('en-IN')}`;
+        previewAmount.className = `preview-amount ${parsed.type}`;
+        btnAdd.disabled = false;
+      } else {
+        previewAmount.innerText = "Missing amount";
+        previewAmount.className = "preview-amount empty";
+        btnAdd.disabled = true;
+      }
+    }
+
+    function togglePreviewType() {
+      if (!activeParsedTransaction) return;
+      
+      // Toggle type
+      activeParsedTransaction.type = activeParsedTransaction.type === 'income' ? 'expense' : 'income';
+      
+      // Update UI elements to reflect overrides
+      const previewPanel = document.getElementById("previewPanel");
+      const previewTag = document.getElementById("previewTag");
+      const previewAmount = document.getElementById("previewAmount");
+
+      previewPanel.className = `preview-panel ${activeParsedTransaction.type}`;
+      previewTag.innerText = activeParsedTransaction.type;
+      previewTag.className = `preview-tag ${activeParsedTransaction.type}`;
+
+      const toggleBtn = previewPanel.querySelector(".preview-toggle-btn");
+      if (toggleBtn) {
+        toggleBtn.innerText = `Override to ${activeParsedTransaction.type === 'income' ? 'Expense' : 'Income'}`;
+      }
+
+      if (activeParsedTransaction.amount !== null) {
+        previewAmount.className = `preview-amount ${activeParsedTransaction.type}`;
+      }
+    }
+
+    function applySuggestion(suggestionText) {
+      const input = document.getElementById("smartInput");
+      input.value = suggestionText;
+      input.focus();
+      handleInputLive();
+      showToast("Example loaded! Check the live parser preview.", "success");
+    }
+
+    // 6. CRUD Operations
+    function submitTransaction() {
+      if (!activeParsedTransaction || activeParsedTransaction.amount === null) return;
+
+      const catInfo = getCategoryAndIcon(activeParsedTransaction.description, activeParsedTransaction.type);
+
+      const trans = {
+        description: activeParsedTransaction.description,
+        amount: activeParsedTransaction.amount,
+        type: activeParsedTransaction.type,
+        category: catInfo.name,
+        dateStr: new Date().toISOString(),
+        userName: (currentUserProfile && currentUserProfile.name) ? currentUserProfile.name : "Anonymous",
+        userUid: (auth && auth.currentUser) ? auth.currentUser.uid : "unknown"
+      };
+
+      if (isFirebaseConfigured && auth && auth.currentUser) {
+        // Sync to cloud Firestore under users/{uid}/transactions
+        const uid = auth.currentUser.uid;
+        db.collection("users").doc(uid).collection("transactions").add(trans)
+          .then(() => {
+            showToast("Transaction synced with secure cloud database!");
+            resetForm();
+          })
+          .catch((error) => {
+            console.error("Error creating record: ", error);
+            showToast("Failed to write to cloud. Saving locally.", "error");
+            saveLocally(trans);
+          });
+      } else {
+        // Save locally
+        saveLocally(trans);
+      }
+    }
+
+    function saveLocally(trans) {
+      // Generate ID
+      trans.id = "TX-" + Math.floor(100000 + Math.random() * 900000);
+      transactions.unshift(trans);
+      
+      localStorage.setItem("local_transactions", JSON.stringify(transactions));
+      showToast("Transaction saved in local sandbox space.");
+      resetForm();
+      updateUI();
+    }
+
+    function deleteTransaction(id) {
+      if (confirm("Are you sure you want to delete this transaction record?")) {
+        if (isFirebaseConfigured && auth && auth.currentUser) {
+          const uid = auth.currentUser.uid;
+          db.collection("users").doc(uid).collection("transactions").doc(id).delete()
+            .then(() => {
+              showToast("Record successfully removed from your ledger.");
+            })
+            .catch((err) => {
+              console.error("Firestore delete error: ", err);
+              showToast("Could not delete record from cloud.", "error");
+            });
+        } else {
+          transactions = transactions.filter(t => t.id !== id);
+          localStorage.setItem("local_transactions", JSON.stringify(transactions));
+          showToast("Record removed from local sandbox.");
+          updateUI();
+        }
+      }
+    }
+
+    function resetForm() {
+      document.getElementById("smartInput").value = "";
+      handleInputLive();
+    }
+
+    // 7. Dashboard Metrics Calculation & UI Render
+    function updateUI() {
+      // Filter transactions based on the activePeriodFilter
+      let filteredTransactions = transactions;
+      const now = new Date();
+      
+      if (activePeriodFilter === 'daily') {
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        filteredTransactions = transactions.filter(t => new Date(t.dateStr) >= startOfToday);
+      } else if (activePeriodFilter === 'monthly') {
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        filteredTransactions = transactions.filter(t => new Date(t.dateStr) >= startOfMonth);
+      } else if (activePeriodFilter === 'yearly') {
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        filteredTransactions = transactions.filter(t => new Date(t.dateStr) >= startOfYear);
+      }
+
+      // Check if admin is logged in to show/hide Logged By column in the table
+      const isAdminUser = currentUserProfile && currentUserProfile.role === "ADMIN";
+      const userTh = document.getElementById("thUser");
+      if (userTh) {
+        userTh.style.display = isAdminUser ? "table-cell" : "none";
+      }
+
+      let totalIncome = 0;
+      let totalExpense = 0;
+
+      // Group totals
+      filteredTransactions.forEach(t => {
+        const amt = parseFloat(t.amount) || 0;
+        if (t.type === 'income') {
+          totalIncome += amt;
+        } else {
+          totalExpense += amt;
+        }
+      });
+
+      const netBalance = totalIncome - totalExpense;
+
+      // Update Top Metrics UI
+      document.getElementById("valNetBalance").innerText = `₹${netBalance.toLocaleString('en-IN')}`;
+      document.getElementById("valTotalIncome").innerText = `₹${totalIncome.toLocaleString('en-IN')}`;
+      document.getElementById("valTotalExpense").innerText = `₹${totalExpense.toLocaleString('en-IN')}`;
+
+      // Net balance styling
+      const balCard = document.getElementById("valNetBalance");
+      if (netBalance > 0) {
+        balCard.style.color = "var(--success)";
+      } else if (netBalance < 0) {
+        balCard.style.color = "var(--danger)";
+      } else {
+        balCard.style.color = "var(--text-main)";
+      }
+
+      // Budget Usage Ratio Fill
+      const ratioIn = document.getElementById("ratioIn");
+      const ratioOut = document.getElementById("ratioOut");
+      const ratioPctLabel = document.getElementById("expenseRatioPct");
+
+      if (totalIncome > 0) {
+        const expensePct = Math.min((totalExpense / totalIncome) * 100, 100);
+        ratioIn.style.width = `${100 - expensePct}%`;
+        ratioOut.style.width = `${expensePct}%`;
+        ratioPctLabel.innerText = `${Math.round((totalExpense / totalIncome) * 100)}% of income spent`;
+      } else {
+        ratioIn.style.width = totalExpense > 0 ? "0%" : "100%";
+        ratioOut.style.width = totalExpense > 0 ? "100%" : "0%";
+        ratioPctLabel.innerText = totalExpense > 0 ? "Expense active, no income" : "No active transactions";
+      }
+
+      // Category Progress Calculation
+      const categoryTotals = {};
+      let maxCatValue = 0;
+
+      filteredTransactions.forEach(t => {
+        if (t.type === 'expense') {
+          const cat = t.category || 'Other';
+          const amt = parseFloat(t.amount) || 0;
+          categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
+          if (categoryTotals[cat] > maxCatValue) {
+            maxCatValue = categoryTotals[cat];
+          }
+        }
+      });
+
+      const catContainer = document.getElementById("categoryProgressContainer");
+      let catHtml = "";
+
+      const defaultCats = [
+        { name: 'Dining', icon: '🍔', color: 'var(--warning)' },
+        { name: 'Travel', icon: '🚗', color: 'var(--primary)' },
+        { name: 'Utilities', icon: '⚡', color: 'var(--danger)' },
+        { name: 'Other', icon: '📝', color: 'var(--text-muted)' }
+      ];
+
+      defaultCats.forEach(cat => {
+        const total = categoryTotals[cat.name] || 0;
+        const progressWidth = maxCatValue > 0 ? (total / maxCatValue) * 100 : 0;
+
+        catHtml += `
+          <div class="category-item">
+            <div class="category-row-details">
+              <span class="category-title">${cat.icon} ${cat.name}</span>
+              <span class="category-val">₹${total.toLocaleString('en-IN')}</span>
+            </div>
+            <div class="category-progress-bg">
+              <div class="category-progress-fill" style="width: ${progressWidth}%; background-color: ${cat.color};"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      catContainer.innerHTML = catHtml;
+
+      // Populate Ledger Table
+      const ledgerBody = document.getElementById("ledgerTableBody");
+      
+      if (filteredTransactions.length === 0) {
+        const colCount = isAdminUser ? 6 : 5;
+        ledgerBody.innerHTML = `
+          <tr>
+            <td colspan="${colCount}">
+              <div class="empty-state">
+                <span class="empty-icon">📝</span>
+                <strong>No Transactions Logged</strong>
+                <span>Try typing a command or clicking a suggestion chip above.</span>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      let ledgerHtml = "";
+      filteredTransactions.forEach(t => {
+        const catInfo = getCategoryAndIcon(t.description, t.type);
+        const amtValue = parseFloat(t.amount) || 0;
+        const dateFormatted = new Date(t.dateStr).toLocaleString('en-IN', {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        const userTd = isAdminUser 
+          ? `<td style="font-size: 0.85rem; font-weight: 500; color: var(--primary); cursor: pointer; text-decoration: underline;" onclick="openEmployeeModal('${t.userName.replace(/'/g, "\\'")}', '${t.userUid}')">${t.userName || "Unknown"}</td>` 
+          : "";
+
+        const descCell = isAdminUser
+          ? `<div class="transaction-desc-cell" style="cursor: pointer;" onclick="openFilteredModal('description', '${t.description.replace(/'/g, "\\'")}', 'Statement: ${t.description.replace(/'/g, "\\'")}', 'Filtered by Description')">
+                <div class="transaction-icon-box">${catInfo.icon}</div>
+                <span class="clickable-user-name">${t.description}</span>
+             </div>`
+          : `<div class="transaction-desc-cell">
+                <div class="transaction-icon-box">${catInfo.icon}</div>
+                <span>${t.description}</span>
+             </div>`;
+
+        const catTd = isAdminUser
+          ? `<td style="cursor: pointer;" onclick="openFilteredModal('category', '${t.category}', 'Category Sheet: ${t.category}', 'All transactions in category')"><span class="category-badge">${t.category}</span></td>`
+          : `<td><span class="category-badge">${t.category}</span></td>`;
+
+        const dateTd = isAdminUser
+          ? `<td style="cursor: pointer; font-size: 0.8rem; color: var(--text-muted);" onclick="openFilteredModal('date', '${t.dateStr}', 'Daily Sheet: ${new Date(t.dateStr).toLocaleDateString('en-IN')}', 'Transactions logged on ${new Date(t.dateStr).toLocaleDateString('en-IN')}')">${dateFormatted}</td>`
+          : `<td style="font-size: 0.8rem; color: var(--text-muted);">${dateFormatted}</td>`;
+
+        const amountTd = isAdminUser
+          ? `<td style="cursor: pointer;" class="amount-cell ${t.type}" onclick="openFilteredModal('type', '${t.type}', '${t.type === 'income' ? 'Income Statement' : 'Expense Statement'}', 'All ${t.type} transactions')">${t.type === 'income' ? '+' : '-'} ₹${amtValue.toLocaleString('en-IN')}</td>`
+          : `<td class="amount-cell ${t.type}">${t.type === 'income' ? '+' : '-'} ₹${amtValue.toLocaleString('en-IN')}</td>`;
+
+        ledgerHtml += `
+          <tr>
+            <td>
+              ${descCell}
+            </td>
+            ${catTd}
+            ${userTd}
+            ${dateTd}
+            ${amountTd}
+            <td style="text-align: right;">
+              <button class="btn-delete" onclick="deleteTransaction('${t.id}')" title="Delete record">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      ledgerBody.innerHTML = ledgerHtml;
+
+      // Update team directory spent totals if admin is active
+      if (isAdminUser) {
+        updateAdminTeamList();
+      }
+    }
+
+    // 8. Sign Out Handler
+    function handleLogout() {
+      if (isFirebaseConfigured && auth) {
+        auth.signOut()
+          .then(() => {
+            localStorage.removeItem("active_user");
+            window.location.href = "login.html";
+          })
+          .catch(e => {
+            console.error("Sign out error: ", e);
+            localStorage.removeItem("active_user");
+            window.location.href = "login.html";
+          });
+      } else {
+        localStorage.removeItem("active_user");
+        window.location.href = "login.html";
+      }
+    }
+
+    // Toast Notifications System
+    function showToast(message, type = "success") {
+      const container = document.getElementById("toastContainer");
+      if (!container) return;
+
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      
+      const icon = type === "success" 
+        ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`
+        : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+
+      toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-content">${message}</div>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-10px)";
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // 9. Admin Statement Sheets & Export Utilities
+
+    // Populate team spending list directory
+    function updateAdminTeamList() {
+      const isAdminUser = currentUserProfile && currentUserProfile.role === "ADMIN";
+      const teamSection = document.getElementById("adminDirectorySection");
+      if (!isAdminUser || !teamSection) {
+        if (teamSection) teamSection.style.display = "none";
+        return;
+      }
+
+      teamSection.style.display = "block";
+
+      const teamListContainer = document.getElementById("adminTeamList");
+      let html = "";
+
+      // Sort users by name
+      const sortedUsers = [...allUsers].sort((a, b) => a.name.localeCompare(b.name));
+
+      sortedUsers.forEach(u => {
+        // Calculate total spent (outflow)
+        const userTrans = transactions.filter(t => t.userUid === u.uid || t.userName === u.name);
+        let totalSpent = 0;
+        userTrans.forEach(t => {
+          if (t.type === 'expense') {
+            totalSpent += parseFloat(t.amount) || 0;
+          }
+        });
+
+        const avatarChar = u.name ? u.name.charAt(0).toUpperCase() : "U";
+
+        html += `
+          <div class="team-member-item" onclick="openEmployeeModal('${u.name.replace(/'/g, "\\'")}', '${u.uid}')">
+            <div class="team-member-info">
+              <div class="team-member-avatar">${avatarChar}</div>
+              <div>
+                <div class="team-member-name">${u.name}</div>
+                <div class="team-member-role">${u.role.replace("_", " ")}</div>
+              </div>
+            </div>
+            <div class="team-member-spending">
+              <span class="team-member-spent-label">Total Outflow</span>
+              <span class="team-member-spent-val">₹${totalSpent.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      teamListContainer.innerHTML = html || `<div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 15px 0;">No team members registered.</div>`;
+    }
+
+    // Filter statement sheet by specific columns (name, category, description, type, date)
+    function openFilteredModal(filterType, filterValue, title, subtitle) {
+      let filteredTrans = [];
+      
+      if (filterType === 'user') {
+        filteredTrans = transactions.filter(t => t.userUid === filterValue || t.userName === filterValue);
+      } else if (filterType === 'category') {
+        filteredTrans = transactions.filter(t => t.category === filterValue);
+      } else if (filterType === 'description') {
+        filteredTrans = transactions.filter(t => t.description === filterValue);
+      } else if (filterType === 'type') {
+        filteredTrans = transactions.filter(t => t.type === filterValue);
+      } else if (filterType === 'date') {
+        const clickedDate = new Date(filterValue).toDateString();
+        filteredTrans = transactions.filter(t => new Date(t.dateStr).toDateString() === clickedDate);
+      }
+
+      // Sort newest first
+      filteredTrans.sort((a, b) => new Date(b.dateStr) - new Date(a.dateStr));
+      
+      const metaProfile = {
+        name: title,
+        role: subtitle,
+        dept: "Statement Sheet",
+        employeeId: `${filterType.toUpperCase()}: ${filterType === 'date' ? new Date(filterValue).toLocaleDateString('en-IN') : filterValue}`
+      };
+      
+      renderModalSheet(metaProfile, filteredTrans);
+    }
+
+    // Legacy handler redirecting to openFilteredModal
+    function openEmployeeModal(userName, userUid) {
+      const idToUse = userUid || userName;
+      openFilteredModal('user', idToUse, `${userName}'s Spending Sheet`, `Team member full profile summary`);
+    }
+
+    // Render statement sheet data inside the modal
+    function renderModalSheet(profile, userTrans) {
+      const overlay = document.getElementById("ledgerModalOverlay");
+      if (!overlay) return;
+
+      overlay.classList.add("active");
+      
+      // Store globally for export functions
+      window.currentModalData = {
+        profile: profile,
+        transactions: userTrans
+      };
+      
+      document.getElementById("modalEmployeeName").innerText = profile.name;
+      document.getElementById("modalEmployeeMeta").innerText = `${profile.role} | ${profile.dept} | ${profile.employeeId}`;
+      
+      let inflow = 0;
+      let outflow = 0;
+      
+      userTrans.forEach(t => {
+        const amt = parseFloat(t.amount) || 0;
+        if (t.type === 'income') {
+          inflow += amt;
+        } else {
+          outflow += amt;
+        }
+      });
+      
+      const balance = inflow - outflow;
+      
+      document.getElementById("modalInflow").innerText = `₹${inflow.toLocaleString('en-IN')}`;
+      document.getElementById("modalOutflow").innerText = `₹${outflow.toLocaleString('en-IN')}`;
+      document.getElementById("modalBalance").innerText = `₹${balance.toLocaleString('en-IN')}`;
+      
+      const balEl = document.getElementById("modalBalance");
+      if (balance > 0) {
+        balEl.style.color = "var(--success)";
+      } else if (balance < 0) {
+        balEl.style.color = "var(--danger)";
+      } else {
+        balEl.style.color = "var(--text-main)";
+      }
+      
+      const tableBody = document.getElementById("modalTableBody");
+      let tableHtml = "";
+      
+      if (userTrans.length === 0) {
+        tableHtml = `
+          <tr>
+            <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px 0;">
+              No matching transaction records found.
+            </td>
+          </tr>
+        `;
+      } else {
+        userTrans.forEach(t => {
+          const dateFormatted = new Date(t.dateStr).toLocaleString('en-IN', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          const catInfo = getCategoryAndIcon(t.description, t.type);
+          
+          tableHtml += `
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="transaction-icon-box" style="width: 24px; height: 24px; font-size: 0.8rem;">${catInfo.icon}</div>
+                  <span style="font-weight: 500; color: var(--text-main);">${t.description}</span>
+                </div>
+              </td>
+              <td><span class="category-badge">${t.category}</span></td>
+              <td style="font-size: 0.8rem; color: var(--text-muted);">${dateFormatted}</td>
+              <td style="text-align: right; font-weight: 700;" class="amount-cell ${t.type}">
+                ${t.type === 'income' ? '+' : '-'} ₹${(parseFloat(t.amount) || 0).toLocaleString('en-IN')}
+              </td>
+            </tr>
+          `;
+        });
+      }
+      
+      tableBody.innerHTML = tableHtml;
+    }
+
+    function closeEmployeeModal() {
+      const overlay = document.getElementById("ledgerModalOverlay");
+      if (overlay) overlay.classList.remove("active");
+      window.currentModalData = null;
+    }
+
+    // Export current modal table data to CSV (Google Sheets / Excel)
+    function exportModalToCSV() {
+      if (!window.currentModalData) return;
+      const { profile, transactions } = window.currentModalData;
+      
+      const headers = ["Description", "Category", "Type", "Date / Time", "Amount (INR)"];
+      const rows = transactions.map(t => [
+        t.description,
+        t.category,
+        t.type,
+        new Date(t.dateStr).toLocaleString('en-IN'),
+        t.amount
+      ]);
+      
+      const csvContent = [headers, ...rows]
+        .map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))
+        .join("\r\n");
+        
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `${profile.name.replace(/\s+/g, '_')}_ledger_sheet.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("Data exported successfully as CSV!");
+    }
+
+    // Export current modal table to printable PDF format
+    function exportModalToPDF() {
+      if (!window.currentModalData) return;
+      const { profile, transactions } = window.currentModalData;
+      
+      const printWindow = window.open("", "_blank");
+      let tableRows = "";
+      let totalIncome = 0;
+      let totalExpense = 0;
+      
+      transactions.forEach(t => {
+        const dateFormatted = new Date(t.dateStr).toLocaleString('en-IN');
+        const amt = parseFloat(t.amount) || 0;
+        if (t.type === 'income') {
+          totalIncome += amt;
+        } else {
+          totalExpense += amt;
+        }
+        tableRows += `
+          <tr>
+            <td>${t.description}</td>
+            <td>${t.category}</td>
+            <td style="text-transform: capitalize;">${t.type}</td>
+            <td>${dateFormatted}</td>
+            <td style="text-align: right; font-weight: 600; color: ${t.type === 'income' ? '#10b981' : '#ef4444'}">
+              ${t.type === 'income' ? '+' : '-'} ₹${amt.toLocaleString('en-IN')}
+            </td>
+          </tr>
+        `;
+      });
+      
+      const netBalance = totalIncome - totalExpense;
+      
+      const htmlContent = `
+        <html>
+        <head>
+          <title>Statement - ${profile.name}</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 40px; color: #1e293b; background: #fff; }
+            .header-container { border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 30px; }
+            h1 { margin: 0 0 5px 0; color: #0f172a; font-size: 2rem; font-weight: 800; }
+            .subtitle { color: #64748b; font-size: 0.85rem; font-weight: 500; }
+            .profile-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 30px; }
+            .profile-card h3 { margin: 0 0 8px 0; font-size: 1.1rem; color: #0f172a; }
+            .profile-meta { color: #64748b; font-size: 0.85rem; }
+            .metrics-grid { display: flex; gap: 20px; margin-bottom: 30px; }
+            .metric-box { flex: 1; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; }
+            .metric-box h4 { margin: 0 0 8px 0; font-size: 0.75rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
+            .metric-val { margin: 0; font-size: 1.6rem; font-weight: 700; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+            th { background-color: #f8fafc; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+            tr:hover { background-color: #f8fafc; }
+            @media print {
+              body { padding: 0; }
+              .metric-box { background: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header-container">
+            <h1>ADCS Ledger Statement</h1>
+            <div class="subtitle">Generated on ${new Date().toLocaleString('en-IN')}</div>
+          </div>
+          
+          <div class="profile-card">
+            <h3>${profile.name}</h3>
+            <div class="profile-meta">${profile.role}</div>
+          </div>
+          
+          <div class="metrics-grid">
+            <div class="metric-box">
+              <h4>Total Inflow</h4>
+              <p class="metric-val" style="color: #10b981;">₹${totalIncome.toLocaleString('en-IN')}</p>
+            </div>
+            <div class="metric-box">
+              <h4>Total Outflow</h4>
+              <p class="metric-val" style="color: #ef4444;">₹${totalExpense.toLocaleString('en-IN')}</p>
+            </div>
+            <div class="metric-box">
+              <h4>Net Balance</h4>
+              <p class="metric-val" style="color: ${netBalance >= 0 ? '#10b981' : '#ef4444'}">₹${netBalance.toLocaleString('en-IN')}</p>
+            </div>
+          </div>
+          
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-top: 40px; margin-bottom: 15px;">Transaction History</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Type</th>
+                <th>Date / Time</th>
+                <th style="text-align: right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+          
+          <script>
+            window.onload = function() {
+              window.print();
+              window.onafterprint = function() { window.close(); };
+            }
+          <\/script>
+        </body>
+        </html>
+      `;
+      
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+    }
+
+    // Theme Toggling Logic
+    function toggleTheme() {
+      const body = document.body;
+      const sunIcon = document.getElementById("sunIcon");
+      const moonIcon = document.getElementById("moonIcon");
+      
+      body.classList.toggle("light-theme");
+      
+      const isLight = body.classList.contains("light-theme");
+      localStorage.setItem("theme", isLight ? "light" : "dark");
+      
+      // Update icons
+      if (sunIcon && moonIcon) {
+        if (isLight) {
+          sunIcon.style.display = "none";
+          moonIcon.style.display = "block";
+        } else {
+          sunIcon.style.display = "block";
+          moonIcon.style.display = "none";
+        }
+      }
+    }
+
+
+
+    // Ledger Security Modal Handlers
+    function openSecurityDetailsModal() {
+      const modal = document.getElementById("securityModalOverlay");
+      if (!modal) return;
+      
+      const secAuthType = document.getElementById("secAuthType");
+      const secSyncState = document.getElementById("secSyncState");
+      const secRole = document.getElementById("secRole");
+      const secWriteScope = document.getElementById("secWriteScope");
+      
+      const isLocal = !isFirebaseConfigured || !auth || !auth.currentUser;
+      
+      if (secAuthType) {
+        secAuthType.innerText = isLocal ? "Local Device Session" : "Firebase Cloud Authenticated";
+        secAuthType.style.color = isLocal ? "var(--warning)" : "var(--success)";
+      }
+      
+      if (secSyncState) {
+        secSyncState.innerText = isLocal ? "Offline Storage Fallback" : "Active Firestore Pool";
+        secSyncState.style.color = isLocal ? "var(--warning)" : "var(--success)";
+      }
+      
+      const activeRole = currentUserProfile ? currentUserProfile.role : "SANDBOX_USER";
+      if (secRole) {
+        secRole.innerText = activeRole.replace("_", " ");
+      }
+      
+      if (secWriteScope) {
+        secWriteScope.innerText = activeRole === "ADMIN" ? "Global Override Access" : "UID-Locked (Self-Only)";
+        secWriteScope.style.color = activeRole === "ADMIN" ? "var(--warning)" : "var(--success)";
+      }
+      
+      modal.classList.add("active");
+    }
+    
+    function closeSecurityModal() {
+      const modal = document.getElementById("securityModalOverlay");
+      if (modal) modal.classList.remove("active");
+    }
+
+    // Fade out page loader on load
+    window.addEventListener("load", () => {
+      const loader = document.getElementById("pageLoader");
+      if (loader) {
+        setTimeout(() => {
+          loader.classList.add("fade-out");
+        }, 600);
+      }
+    });
+  </script>
+
+  <!-- Detailed Statement Sheet Modal (Admin Only) -->
+  <div class="ledger-modal-overlay" id="ledgerModalOverlay">
+    <div class="ledger-modal-content">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="modalEmployeeName">Employee Name</h3>
+          <span id="modalEmployeeMeta" style="font-size: 0.8rem; color: var(--text-secondary);">Role | Department</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeEmployeeModal()" title="Close overlay">&times;</button>
+      </div>
+
+      <!-- User Spent Statistics -->
+      <div class="metric-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 25px; gap: 15px;">
+        <div class="metric-card" style="padding: 15px 20px;">
+          <div class="metric-details">
+            <span class="metric-label" style="font-size: 0.75rem;">Total Inflow</span>
+            <span class="metric-value" style="font-size: 1.25rem; color: var(--success);" id="modalInflow">₹0</span>
+          </div>
+        </div>
+        <div class="metric-card" style="padding: 15px 20px;">
+          <div class="metric-details">
+            <span class="metric-label" style="font-size: 0.75rem;">Total Outflow</span>
+            <span class="metric-value" style="font-size: 1.25rem; color: var(--danger);" id="modalOutflow">₹0</span>
+          </div>
+        </div>
+        <div class="metric-card" style="padding: 15px 20px;">
+          <div class="metric-details">
+            <span class="metric-label" style="font-size: 0.75rem;">Net Balance</span>
+            <span class="metric-value" style="font-size: 1.25rem;" id="modalBalance">₹0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Actions -->
+      <div class="export-actions-row">
+        <button class="btn-export" onclick="exportModalToCSV()" title="Download CSV for Google Sheets">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+          </svg>
+          Export to Sheets
+        </button>
+        <button class="btn-export excel" onclick="exportModalToCSV()" title="Download CSV for Microsoft Excel">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+          </svg>
+          Export to Excel
+        </button>
+        <button class="btn-export pdf" onclick="exportModalToPDF()" title="Print statement or Save as PDF">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          Export to PDF
+        </button>
+      </div>
+
+      <!-- Transaction Table -->
+      <div class="audit-table-wrapper" style="max-height: 350px; overflow-y: auto;">
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Date / Time</th>
+              <th style="text-align: right; width: 120px;">Amount</th>
+            </tr>
+          </thead>
+          <tbody id="modalTableBody">
+            <!-- Dynamically populated rows -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Details Modal -->
+  <div class="ledger-modal-overlay" id="securityModalOverlay">
+    <div class="ledger-modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" style="color: var(--success); display: flex; align-items: center; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            Ledger Security Profile
+          </h3>
+          <span style="font-size: 0.8rem; color: var(--text-secondary);">ADCS Ledger Integrity Audit</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeSecurityModal()">&times;</button>
+      </div>
+
+      <div class="security-audit-content" style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+        <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 12px; padding: 15px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="font-size: 1.5rem; color: var(--success);">🛡️</span>
+          <div>
+            <h4 style="font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 4px;">Host & Cloud Isolation Active</h4>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4;">
+              All communications are encrypted using HTTPS (SSL/TLS). Transactions are isolated by user UIDs on Google Firestore database servers.
+            </p>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px;">
+          <h4 style="font-size: 0.85rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; margin-bottom: 5px;">Security Audit Parameters</h4>
+          
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding: 8px 0;">
+            <span style="color: var(--text-secondary);">Active Authentication</span>
+            <span style="color: var(--success); font-weight: 600;" id="secAuthType">Firebase Authenticated</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding: 8px 0;">
+            <span style="color: var(--text-secondary);">Database Sync Connection</span>
+            <span style="color: var(--success); font-weight: 600;" id="secSyncState">Active Firestore Pool</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding: 8px 0;">
+            <span style="color: var(--text-secondary);">Your User Role</span>
+            <span style="color: #fff; font-weight: 600; text-transform: uppercase;" id="secRole">Standard User</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding: 8px 0;">
+            <span style="color: var(--text-secondary);">Write Access Scope</span>
+            <span style="color: #fff; font-weight: 600;" id="secWriteScope">UID-Locked (Self-Only)</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding: 8px 0;">
+            <span style="color: var(--text-secondary);">Transport Layer Layer</span>
+            <span style="color: var(--success); font-weight: 600;">TLS 1.3 Encryption</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; padding: 8px 0 0 0;">
+            <span style="color: var(--text-secondary);">Private Sandbox Directory</span>
+            <span style="color: var(--success); font-weight: 600;">Same-Origin Sandbox Enforced</span>
+          </div>
+        </div>
+
+        <button class="btn-add" onclick="closeSecurityModal()" style="padding: 12px; margin-top: 10px;">Acknowledge Ledger Integrity</button>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+</html>

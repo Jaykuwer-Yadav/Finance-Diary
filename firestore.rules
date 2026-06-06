@@ -1,0 +1,126 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ==========================================
+    // 1. CORE ROLE DEFINITIONS (All 6 Tiers)
+    // ==========================================
+    
+    function isAuthenticated() { 
+      return request.auth != null; 
+    }
+    
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    // Tier 6 (Highest)
+    function isAdmin() { 
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             getUserRole() == 'ADMIN'; 
+    }
+    
+    // Tiers 3, 4, 5, 6 (Executives)
+    function isExecutive() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             (getUserRole() == 'ADMIN' || getUserRole() == 'MD' || getUserRole() == 'DIRECTOR' || getUserRole() == 'CO_DIRECTOR');
+    }
+    
+    // Tiers 2, 3, 4, 5, 6 (Internal Staff)
+    function isEmployee() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             (getUserRole() == 'EMPLOYEE' || isExecutive());
+    }
+
+    // ==========================================
+    // 2. TIERED ACCESS RULES
+    // ==========================================
+
+    // ---> USER PROFILES (With Registration Protection)
+    match /users/{userId} {
+      
+      // READ: You can read your own profile, or staff/admins can read everyone's
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isEmployee());
+
+      // CREATE (Registration Lock): 
+      // Standard users can only register as 'USER'
+      // The admin email jayyad71@gmail.com is allowed to register as 'ADMIN'
+      // Existing admins can bypass this lock to create md/employee profiles
+      allow create: if isAuthenticated() && 
+        (
+          (request.auth.uid == userId && 
+            (
+              request.resource.data.role == 'USER' 
+              || 
+              (request.resource.data.role == 'ADMIN' && 
+               request.resource.data.email == 'jayyad71@gmail.com' && 
+               request.auth.token.email == 'jayyad71@gmail.com')
+            )
+          )
+          || 
+          isAdmin()
+        );
+
+      // UPDATE: Users can update their own profile (like their name), 
+      // but they CANNOT change their own role. Only Admins can change roles.
+      allow update: if isAdmin() || 
+        (isAuthenticated() && request.auth.uid == userId && request.resource.data.role == resource.data.role);
+
+      // DELETE: Only Admins can delete accounts
+      allow delete: if isAdmin();
+
+      // ---> TRANSACTIONS SUB-COLLECTION
+      match /transactions/{transactionId} {
+        // Allow users to read/write their own transactions
+        allow read, write: if isAuthenticated() && request.auth.uid == userId;
+        // Allow executives/admins to read all user transaction records
+        allow read: if isExecutive();
+      }
+    }
+
+    // ---> IP REGISTRY (Duplicate Registration Prevention)
+    match /registered_ips/{ipAddress} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // ---> STANDARD USER DATA (e.g., Customer Orders, Tickets)
+    match /customer_data/{docId} {
+      // Tier 1 (USER): Can only read/write documents they own
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.ownerId || isEmployee());
+      allow create: if isAuthenticated() && (request.auth.uid == request.resource.data.ownerId || isEmployee());
+      allow update: if isAuthenticated() && (request.auth.uid == resource.data.ownerId || isEmployee());
+      allow delete: if isEmployee();
+    }
+
+    // ---> EMPLOYEE INTERNAL LOGS (Tasks, Shifts)
+    match /employee_records/{record} {
+      // Tier 2 (EMPLOYEE): Can read/write their own task logs
+      allow read: if isAuthenticated() && (resource.data.employeeId == request.auth.uid || isExecutive());
+      allow create: if isAuthenticated() && (request.resource.data.employeeId == request.auth.uid || isExecutive());
+      allow update: if isAuthenticated() && (resource.data.employeeId == request.auth.uid || isExecutive());
+      allow delete: if isExecutive();
+    }
+
+    // ---> CORPORATE FINANCIALS (Earnings / Spendings)
+    match /financial_transactions/{transaction} {
+      // Tier 3+ (EXECUTIVE): Can view the financial dashboard
+      allow read: if isExecutive();
+      // Tier 2 (EMPLOYEE): Can submit an expense, but cannot read the full dashboard
+      allow create: if isEmployee();
+      // Tier 5+ (MD, ADMIN): Can edit or delete financial records
+      allow update, delete: if isAuthenticated() && (getUserRole() == 'ADMIN' || getUserRole() == 'MD');
+    }
+
+    // ==========================================
+    // 3. THE VAULT DOOR (Fail-Safe)
+    // ==========================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,13 @@
+# Secure Environment Variables
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+
+# Node Modules
+node_modules/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
