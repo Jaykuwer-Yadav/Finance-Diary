@@ -32,7 +32,12 @@ window.firebaseConfig = {
 
 app.use(express.static(__dirname));
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_super_secret_key_here"; // Keep this hidden!
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.error("FATAL ERROR: JWT_SECRET is not defined in the environment variables.");
+  process.exit(1); // Shuts down the server immediately to prevent unauthorized access
+}
 
 // Mock Database Users
 const mockUsers = [
