@@ -178,4 +178,8 @@ app.post('/api/register-ip', verifyRole(['ADMIN', 'MD', 'DIRECTOR', 'CO_DIRECTOR
   }
 });
 
-app.listen(5000, () => console.log("Enterprise Server running securely on port 5000"));
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  app.listen(5000, () => console.log("Enterprise Server running securely on port 5000"));
+}
