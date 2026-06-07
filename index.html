@@ -127,6 +127,8 @@
       margin-bottom: 30px;
       flex-wrap: wrap;
       gap: 20px;
+      position: relative;
+      z-index: 1005;
     }
 
     .header-brand {
@@ -228,6 +230,67 @@
 
     .btn-signout:hover {
       color: var(--danger);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-theme-toggle {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 10px;
+    }
+
+    .btn-menu-directory {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-left: 10px;
+    }
+
+    .btn-menu-directory:hover {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .hamburger-btn {
+      display: none;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 10px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .hamburger-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--border-hover);
     }
 
     /* Workspace Layout Manager (CSS Grid Areas) */
@@ -377,31 +440,18 @@
       align-items: center;
     }
 
-    .smart-input-icon {
-      position: absolute;
-      left: 18px;
-      color: var(--text-muted);
+    .smart-input-wrapper {
       display: flex;
       align-items: center;
-      pointer-events: none;
-      transition: color 0.3s ease;
-    }
-
-    .smart-input-field {
-      width: 100%;
       background: rgba(5, 7, 12, 0.6);
       border: 1.5px solid var(--border-color);
       border-radius: 14px;
-      padding: 16px 20px 16px 52px;
-      color: #fff;
-      font-family: var(--font-sans);
-      font-size: 1rem;
-      outline: none;
+      padding: 0 16px;
       transition: all 0.3s ease;
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
     }
 
-    .smart-input-field:focus {
+    .smart-input-wrapper:focus-within {
       border-color: var(--primary);
       box-shadow: 
         0 0 15px rgba(99, 102, 241, 0.2),
@@ -409,8 +459,30 @@
       background: rgba(5, 7, 12, 0.8);
     }
 
-    .smart-input-field:focus + .smart-input-icon {
+    .smart-input-icon {
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+      transition: color 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .smart-input-wrapper:focus-within .smart-input-icon {
       color: var(--primary);
+    }
+
+    .smart-input-field {
+      width: 100%;
+      background: transparent !important;
+      border: none !important;
+      padding: 16px 0 !important;
+      margin-left: 12px;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      outline: none;
+      box-shadow: none !important;
     }
 
     /* Suggestion Chips */
@@ -485,12 +557,14 @@
       flex-direction: column;
       gap: 5px;
       flex: 1;
+      min-width: 0;
     }
 
     .preview-header {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .preview-tag {
@@ -525,6 +599,7 @@
       letter-spacing: 0.3px;
       padding: 2px 5px;
       transition: color 0.2s;
+      white-space: nowrap;
     }
 
     .preview-toggle-btn:hover {
@@ -552,6 +627,7 @@
       font-size: 1.5rem;
       font-weight: 800;
       text-align: right;
+      flex-shrink: 0;
     }
 
     .preview-amount.income {
@@ -564,6 +640,30 @@
 
     .preview-amount.empty {
       color: var(--text-muted);
+    }
+
+    .btn-delete-user {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      color: var(--danger);
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+    }
+
+    .btn-delete-user:hover {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
     }
 
     .btn-add {
@@ -636,6 +736,31 @@
       color: #fff;
       border-color: rgba(255, 255, 255, 0.1);
       box-shadow: 0 0 12px rgba(255, 255, 255, 0.02);
+    }
+
+    .filter-select {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+      font-family: var(--font-sans);
+      transition: all 0.3s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .filter-select:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-hover);
+    }
+
+    .filter-select option {
+      background-color: var(--bg-space);
+      color: var(--text-main);
     }
 
     .metric-grid {
@@ -937,6 +1062,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px 20px;
       color: var(--text-secondary);
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -1165,6 +1292,12 @@
       margin-bottom: 25px;
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 15px;
+      gap: 15px;
+    }
+    .modal-header > div {
+      flex: 1;
+      min-width: 0;
+      padding-right: 15px;
     }
     .modal-title {
       font-size: 1.4rem;
@@ -1189,6 +1322,7 @@
       transition: all 0.2s;
       font-size: 1.25rem;
       line-height: 1;
+      flex-shrink: 0;
     }
     .modal-close-btn:hover {
       background: rgba(255,255,255,0.1);
@@ -1199,6 +1333,12 @@
       gap: 12px;
       margin-bottom: 25px;
       flex-wrap: wrap;
+    }
+    .modal-metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      margin-bottom: 25px;
+      gap: 15px;
     }
     .btn-export {
       background: rgba(99, 102, 241, 0.1);
@@ -1343,16 +1483,18 @@
     body.light-theme .team-member-name {
       color: var(--text-main);
     }
-    body.light-theme .smart-input-field {
+    body.light-theme .smart-input-wrapper {
       background: rgba(255, 255, 255, 0.7);
-      color: var(--text-main);
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
-    body.light-theme .smart-input-field:focus {
+    body.light-theme .smart-input-wrapper:focus-within {
       background: rgba(255, 255, 255, 0.95);
       box-shadow: 
         0 0 15px rgba(99, 102, 241, 0.1),
         inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    body.light-theme .smart-input-field {
+      color: var(--text-main);
     }
     body.light-theme .metric-value {
       color: var(--text-main);
@@ -1532,10 +1674,15 @@
         inset 3px 3px 0 #9ef04e !important;
     }
 
-    body.layout-minecraft input {
+    body.layout-minecraft .smart-input-wrapper {
       background: #0f0f0f !important;
       border: 3px solid #3c3c3c !important;
       box-shadow: inset 3px 3px 0 #000000 !important;
+      padding: 0 12px !important;
+      border-radius: 0 !important;
+    }
+
+    body.layout-minecraft input {
       color: #55ff55 !important;
       font-size: 1.2rem !important;
     }
@@ -1655,6 +1802,202 @@
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-4px); }
     }
+
+    /* Mobile Responsive Tables & Elements */
+    @media (max-width: 768px) {
+      /* Modal Mobile Optimizations */
+      .export-actions-row {
+        flex-direction: column !important;
+        gap: 8px !important;
+      }
+      .export-actions-row .btn-export {
+        width: 100% !important;
+        justify-content: center !important;
+        margin-left: 0 !important;
+      }
+      .modal-metric-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+      }
+
+      .hamburger-btn {
+        display: flex !important;
+      }
+      
+      .header-controls {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        right: 0;
+        background: rgba(10, 12, 22, 0.98);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 16px;
+        gap: 12px;
+        z-index: 1002;
+        align-items: stretch !important;
+        min-width: 220px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+
+      .header-controls.active {
+        display: flex !important;
+      }
+
+      .btn-theme-toggle {
+        width: 100% !important;
+        border-radius: 10px !important;
+        height: 38px !important;
+        margin-left: 0 !important;
+        margin-top: 5px !important;
+        justify-content: center !important;
+      }
+
+      .btn-menu-directory {
+        width: 100% !important;
+        margin-left: 0 !important;
+        padding: 10px 12px !important;
+        background: rgba(255,255,255,0.03) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 10px !important;
+        justify-content: center !important;
+        height: 38px !important;
+        margin-top: 5px !important;
+      }
+
+      .btn-signout {
+        width: 100% !important;
+        margin-left: 0 !important;
+        padding: 10px 12px !important;
+        background: rgba(255,255,255,0.03) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 10px !important;
+        justify-content: center !important;
+      }
+
+      .layout-switcher-container {
+        width: 100% !important;
+        margin-left: 0 !important;
+      }
+
+      .layout-switcher-container select {
+        width: 100% !important;
+      }
+
+      .user-profile-chip {
+        width: 100% !important;
+        justify-content: flex-start !important;
+      }
+
+      .sync-status-banner {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+      }
+
+      .audit-table-wrapper {
+        border: none !important;
+        background: transparent !important;
+        overflow: visible !important;
+      }
+
+      .audit-table thead {
+        display: none !important;
+      }
+      
+      .audit-table, 
+      .audit-table tbody, 
+      .audit-table tr, 
+      .audit-table td[data-label] {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box;
+      }
+
+      .audit-table tr {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 16px !important;
+        margin-bottom: 15px !important;
+        padding: 15px 20px !important;
+      }
+
+      body.layout-minecraft .audit-table tr {
+        border: 3px solid #000 !important;
+        background: #222222 !important;
+        margin-bottom: 15px !important;
+        padding: 12px !important;
+      }
+
+      .audit-table td[data-label] {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 10px 0 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+        background: transparent !important;
+        width: 100% !important;
+        text-align: right !important;
+      }
+
+      body.layout-minecraft .audit-table td[data-label] {
+        border-bottom: 2px dashed #3c3c3c !important;
+      }
+
+      .audit-table td:last-child {
+        border-bottom: none !important;
+      }
+
+      .audit-table td[data-label]::before {
+        content: attr(data-label);
+        font-family: var(--font-sans);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.72rem;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        text-align: left;
+        display: inline-block;
+      }
+
+      body.layout-minecraft .audit-table td[data-label]::before {
+        font-family: 'VT323', monospace !important;
+        font-size: 1.1rem !important;
+        color: #aaaaaa !important;
+      }
+
+      /* Hide empty label for action */
+      .audit-table td[data-label="Action"]::before {
+        display: none !important;
+      }
+      
+      .audit-table td[data-label="Action"] {
+        justify-content: flex-end !important;
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .preview-panel {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        min-height: auto !important;
+      }
+      .preview-amount {
+        text-align: left !important;
+        border-top: 1px dashed rgba(255, 255, 255, 0.1) !important;
+        padding-top: 10px !important;
+        margin-top: 5px !important;
+      }
+      body.layout-minecraft .preview-amount {
+        border-top: 2px dashed #3c3c3c !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1698,41 +2041,60 @@
         </div>
       </div>
 
-      <div style="display: flex; align-items: center;">
-        <div class="user-profile-chip" id="userProfileChip">
-          <div class="user-avatar" id="userAvatar">U</div>
-          <div class="user-details">
-            <span class="user-name" id="userName">Local User</span>
-            <span class="user-role-badge" id="userRole">Sandbox Mode</span>
+      <div style="display: flex; align-items: center; position: relative; z-index: 1006;">
+        <!-- Hamburger Menu Button -->
+        <button id="hamburgerBtn" class="hamburger-btn" onclick="toggleMobileMenu()" title="Toggle settings menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="header-controls" id="headerControls">
+          <div class="user-profile-chip" id="userProfileChip">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <div class="user-details">
+              <span class="user-name" id="userName">Local User</span>
+              <span class="user-role-badge" id="userRole" style="display: none;">Sandbox Mode</span>
+            </div>
           </div>
+
+          <!-- Layout Switcher Dropdown -->
+          <div class="layout-switcher-container" id="layoutSwitcherContainer" style="margin-left: 10px; display: none;">
+            <select id="layoutSelect" onchange="changeLayout(this.value)" autocomplete="off" title="Choose workspace grid layout">
+              <option value="standard">Standard Grid</option>
+              <option value="wide">Analytics Grid</option>
+              <option value="minimalist">Minimalist Focus</option>
+              <option value="minecraft">Minecraft Pixel Grid</option>
+            </select>
+          </div>
+
+          <!-- Team Directory Shortcut (Admin Only) -->
+          <button id="btnMenuDirectory" class="btn-menu-directory" style="display: none;" onclick="scrollToDirectory()" title="Go to Team Directory">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0;">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>Team Directory</span>
+          </button>
+
+          <!-- Theme Toggle Button -->
+          <button id="themeToggleBtn" class="btn-theme-toggle" onclick="toggleTheme()" title="Toggle appearance theme">
+            <svg id="sunIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg id="moonIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: none;">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
+
+          <button class="btn-signout" onclick="handleLogout()" title="Return to authentication gate">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign Out
+          </button>
         </div>
-
-        <!-- Layout Switcher Dropdown -->
-        <div class="layout-switcher-container" style="margin-left: 10px;">
-          <select id="layoutSelect" onchange="changeLayout(this.value)" autocomplete="off" title="Choose workspace grid layout">
-            <option value="standard">Standard Grid</option>
-            <option value="wide">Analytics Grid</option>
-            <option value="minimalist">Minimalist Focus</option>
-            <option value="minecraft">Minecraft Pixel Grid</option>
-          </select>
-        </div>
-
-        <!-- Theme Toggle Button -->
-        <button id="themeToggleBtn" class="btn-theme-toggle" onclick="toggleTheme()" title="Toggle appearance theme" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 50%; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; margin-left: 10px;">
-          <svg id="sunIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-          <svg id="moonIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: none;">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-        </button>
-
-        <button class="btn-signout" onclick="handleLogout()" title="Return to authentication gate">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-          Sign Out
-        </button>
       </div>
     </header>
 
@@ -1860,12 +2222,12 @@
 
         <div class="filter-bar">
           <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 500;">Filter Period:</span>
-          <div class="filter-buttons" style="display: flex; gap: 6px;">
-            <button class="filter-btn active" onclick="setPeriodFilter('all', this)">All Time</button>
-            <button class="filter-btn" onclick="setPeriodFilter('daily', this)">Daily</button>
-            <button class="filter-btn" onclick="setPeriodFilter('monthly', this)">Monthly</button>
-            <button class="filter-btn" onclick="setPeriodFilter('yearly', this)">Yearly</button>
-          </div>
+          <select class="filter-select" id="periodSelect" onchange="setPeriodFilter(this.value)">
+            <option value="all">All Time</option>
+            <option value="daily">Daily</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
         </div>
 
         <div class="metric-grid">
@@ -2215,7 +2577,18 @@
       }
 
       // Configure Auth redirection & Database listener
-      if (isFirebaseConfigured && auth) {
+      const userStr = localStorage.getItem("active_user");
+      let isMockSession = false;
+      if (userStr) {
+        try {
+          const parsed = JSON.parse(userStr);
+          if (parsed.uid && parsed.uid.startsWith("MOCK-")) {
+            isMockSession = true;
+          }
+        } catch(e){}
+      }
+
+      if (isFirebaseConfigured && auth && !isMockSession) {
         setupFirebaseSync();
       } else {
         setupLocalStorageSync();
@@ -2302,6 +2675,7 @@
                 transSnapshot.forEach((doc) => {
                   empTrans.push({
                     id: doc.id,
+                    userUid: empUid,
                     ...doc.data()
                   });
                 });
@@ -2342,6 +2716,7 @@
           snapshot.forEach((doc) => {
             transactions.push({
               id: doc.id,
+              userUid: uid,
               ...doc.data()
             });
           });
@@ -2359,13 +2734,12 @@
     }
 
     // Set active filter period
-    function setPeriodFilter(period, btn) {
+    function setPeriodFilter(period) {
       activePeriodFilter = period;
       
-      // Update button classes
-      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-      if (btn) {
-        btn.classList.add("active");
+      const periodSelect = document.getElementById("periodSelect");
+      if (periodSelect && periodSelect.value !== period) {
+        periodSelect.value = period;
       }
       
       updateUI();
@@ -2410,13 +2784,159 @@
           transactions = [];
         }
       }
+
+      // Initialize/Load local users list in sandbox mode
+      let localUsersStr = localStorage.getItem("local_users");
+      if (!localUsersStr) {
+        const defaultUsers = [
+          { uid: "MOCK-ADMIN-1", name: "ADMIN", email: "admin@company.com", role: "ADMIN" },
+          { uid: "MOCK-MD-2", name: "MD", email: "md@company.com", role: "MD" },
+          { uid: "MOCK-FINANCIAL_ADVISOR-3", name: "ADVISOR", email: "advisor@company.com", role: "FINANCIAL_ADVISOR" },
+          { uid: "MOCK-EMPLOYEE-4", name: "EMPLOYEE", email: "employee@company.com", role: "EMPLOYEE" }
+        ];
+        localStorage.setItem("local_users", JSON.stringify(defaultUsers));
+        allUsers = defaultUsers;
+      } else {
+        try {
+          allUsers = JSON.parse(localUsersStr);
+        } catch (e) {
+          allUsers = [];
+        }
+      }
+
       updateUI();
+    }
+
+    // Helper to convert word numbers and k abbreviations to digits
+    function convertWordsAndKToNumbers(text) {
+      let lower = text.toLowerCase();
+
+      // Normalize separators: replace dashes with spaces, remove commas within numbers (e.g. 1,000 -> 1000)
+      lower = lower.replace(/-/g, ' ');
+      lower = lower.replace(/(\d),(\d)/g, '$1$2');
+
+      // Insert spaces between numbers (digits or word numbers) and scale suffixes
+      const scaleRegexStr = "k|lakhs?|lacs?|crores?|crs?|cr|thousands?|hundreds?";
+      const numWordRegexStr = "zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety";
+      
+      lower = lower.replace(new RegExp(`(\\d+(?:\\.\\d+)?)\\s*(${scaleRegexStr})\\b`, "gi"), "$1 $2");
+      lower = lower.replace(new RegExp(`\\b(${numWordRegexStr})\\s*(${scaleRegexStr})\\b`, "gi"), "$1 $2");
+
+      // Regex to match:
+      // - digits (e.g. 2, 2.5)
+      // - number words (e.g. two, twenty)
+      // - scale suffixes (e.g. k, lakh, lakhs, lac, lacs, crore, crores, cr, crs, thousand, hundred)
+      // - connecting word "and"
+      // - decimal word "point" or "dot" between numbers
+      
+      const tokenPattern = "(?:\\d+(?:\\.\\d+)?|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundreds?|thousands?|lakhs?|lacs?|crores?|crs?|cr|k|and|point|dot)";
+      const seqRegex = new RegExp(`\\b${tokenPattern}(?:\\s+${tokenPattern})*\\b`, "gi");
+
+      const smallWords = {
+        'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9,
+        'ten': 10, 'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15, 'sixteen': 16, 'seventeen': 17, 'eighteen': 18, 'nineteen': 19,
+        'twenty': 20, 'thirty': 30, 'forty': 40, 'fifty': 50, 'sixty': 60, 'seventy': 70, 'eighty': 80, 'ninety': 90
+      };
+
+      const scaleWords = {
+        'hundred': 100,
+        'thousand': 1000,
+        'lakh': 100000,
+        'lac': 100000,
+        'crore': 10000000,
+        'cr': 10000000
+      };
+
+      const normalizeScale = (scale) => {
+        scale = scale.toLowerCase();
+        if (scale === 'k') return 'thousand';
+        if (scale === 'lakhs' || scale === 'lacs' || scale === 'lac') return 'lakh';
+        if (scale === 'crores' || scale === 'cr' || scale === 'crs') return 'crore';
+        if (scale === 'thousands') return 'thousand';
+        if (scale === 'hundreds') return 'hundred';
+        return scale;
+      };
+
+      function parseSequence(seqStr) {
+        const tokens = seqStr.trim().split(/\s+/);
+        if (tokens.length === 1) {
+          const single = tokens[0];
+          if (smallWords[single] !== undefined) return String(smallWords[single]);
+          if (/^\d+(?:\.\d+)?$/.test(single)) return single;
+          return single;
+        }
+
+        let parsedTokens = [];
+        for (let i = 0; i < tokens.length; i++) {
+          const token = tokens[i];
+          if (token === 'and') continue;
+
+          if (token === 'point' || token === 'dot') {
+            if (parsedTokens.length > 0 && i + 1 < tokens.length) {
+              const prev = parsedTokens[parsedTokens.length - 1];
+              const next = tokens[i + 1];
+              let prevNum = typeof prev === 'number' ? prev : smallWords[prev];
+              let nextNum = typeof next === 'number' ? next : smallWords[next];
+              
+              if (prevNum !== undefined && nextNum !== undefined) {
+                parsedTokens[parsedTokens.length - 1] = parseFloat(`${prevNum}.${nextNum}`);
+                i++;
+                continue;
+              }
+            }
+          }
+
+          if (smallWords[token] !== undefined) {
+            parsedTokens.push(smallWords[token]);
+          } else if (/^\d+(?:\.\d+)?$/.test(token)) {
+            parsedTokens.push(parseFloat(token));
+          } else {
+            const norm = normalizeScale(token);
+            if (scaleWords[norm] !== undefined || norm === 'thousand' || norm === 'hundred' || norm === 'lakh' || norm === 'crore') {
+              parsedTokens.push(norm);
+            } else {
+              parsedTokens.push(token);
+            }
+          }
+        }
+
+        let total = 0;
+        let current = 0;
+
+        for (let i = 0; i < parsedTokens.length; i++) {
+          const token = parsedTokens[i];
+
+          if (typeof token === 'number') {
+            current += token;
+          } else {
+            const scaleVal = scaleWords[token];
+            if (scaleVal) {
+              if (token === 'hundred') {
+                current = (current === 0 ? 1 : current) * 100;
+              } else {
+                total += (current === 0 ? 1 : current) * scaleVal;
+                current = 0;
+              }
+            }
+          }
+        }
+
+        return String(total + current);
+      }
+
+      return lower.replace(seqRegex, (match) => {
+        if (match.trim() === 'and') return match;
+        return parseSequence(match);
+      });
     }
 
     // 4. Natural Language Parser Logic
     function parseTransactionText(text) {
-      const cleanedText = text.trim();
+      let cleanedText = text.trim();
       if (!cleanedText) return null;
+
+      // Convert number words and k-abbreviations to digits
+      cleanedText = convertWordsAndKToNumbers(cleanedText);
 
       // Numerical Extraction (Extracting digits including floating points)
       // Handles: 2000 rps, rs 2000, 500, cost 12.50, ₹1500, inr 450
@@ -2669,7 +3189,7 @@
         category: catInfo.name,
         dateStr: new Date().toISOString(),
         userName: (currentUserProfile && currentUserProfile.name) ? currentUserProfile.name : "Anonymous",
-        userUid: (auth && auth.currentUser) ? auth.currentUser.uid : "unknown"
+        userUid: (auth && auth.currentUser) ? auth.currentUser.uid : ((currentUserProfile && currentUserProfile.uid) ? currentUserProfile.uid : "unknown")
       };
 
       if (isFirebaseConfigured && auth && auth.currentUser) {
@@ -2702,11 +3222,11 @@
       updateUI();
     }
 
-    function deleteTransaction(id) {
+    function deleteTransaction(id, ownerUid) {
       if (confirm("Are you sure you want to delete this transaction record?")) {
         if (isFirebaseConfigured && auth && auth.currentUser) {
-          const uid = auth.currentUser.uid;
-          db.collection("users").doc(uid).collection("transactions").doc(id).delete()
+          const targetUid = ownerUid || auth.currentUser.uid;
+          db.collection("users").doc(targetUid).collection("transactions").doc(id).delete()
             .then(() => {
               showToast("Record successfully removed from your ledger.");
             })
@@ -2750,6 +3270,18 @@
       const userTh = document.getElementById("thUser");
       if (userTh) {
         userTh.style.display = isAdminUser ? "table-cell" : "none";
+      }
+
+      // Show/hide layout switcher container based on admin role
+      const layoutContainer = document.getElementById("layoutSwitcherContainer");
+      if (layoutContainer) {
+        layoutContainer.style.display = isAdminUser ? "inline-block" : "none";
+      }
+
+      // Show/hide team directory shortcut button in header controls
+      const dirMenuBtn = document.getElementById("btnMenuDirectory");
+      if (dirMenuBtn) {
+        dirMenuBtn.style.display = isAdminUser ? "inline-flex" : "none";
       }
 
       let totalIncome = 0;
@@ -2873,7 +3405,7 @@
         });
 
         const userTd = isAdminUser 
-          ? `<td style="font-size: 0.85rem; font-weight: 500; color: var(--primary); cursor: pointer; text-decoration: underline;" onclick="openEmployeeModal('${t.userName.replace(/'/g, "\\'")}', '${t.userUid}')">${t.userName || "Unknown"}</td>` 
+          ? `<td data-label="Logged By" style="font-size: 0.85rem; font-weight: 500; color: var(--primary); cursor: pointer; text-decoration: underline;" onclick="openEmployeeModal('${t.userName.replace(/'/g, "\\'")}', '${t.userUid}')">${t.userName || "Unknown"}</td>` 
           : "";
 
         const descCell = isAdminUser
@@ -2887,28 +3419,28 @@
              </div>`;
 
         const catTd = isAdminUser
-          ? `<td style="cursor: pointer;" onclick="openFilteredModal('category', '${t.category}', 'Category Sheet: ${t.category}', 'All transactions in category')"><span class="category-badge">${t.category}</span></td>`
-          : `<td><span class="category-badge">${t.category}</span></td>`;
+          ? `<td data-label="Category" style="cursor: pointer;" onclick="openFilteredModal('category', '${t.category}', 'Category Sheet: ${t.category}', 'All transactions in category')"><span class="category-badge">${t.category}</span></td>`
+          : `<td data-label="Category"><span class="category-badge">${t.category}</span></td>`;
 
         const dateTd = isAdminUser
-          ? `<td style="cursor: pointer; font-size: 0.8rem; color: var(--text-muted);" onclick="openFilteredModal('date', '${t.dateStr}', 'Daily Sheet: ${new Date(t.dateStr).toLocaleDateString('en-IN')}', 'Transactions logged on ${new Date(t.dateStr).toLocaleDateString('en-IN')}')">${dateFormatted}</td>`
-          : `<td style="font-size: 0.8rem; color: var(--text-muted);">${dateFormatted}</td>`;
+          ? `<td data-label="Date / Time" style="cursor: pointer; font-size: 0.8rem; color: var(--text-muted);" onclick="openFilteredModal('date', '${t.dateStr}', 'Daily Sheet: ${new Date(t.dateStr).toLocaleDateString('en-IN')}', 'Transactions logged on ${new Date(t.dateStr).toLocaleDateString('en-IN')}')">${dateFormatted}</td>`
+          : `<td data-label="Date / Time" style="font-size: 0.8rem; color: var(--text-muted);">${dateFormatted}</td>`;
 
         const amountTd = isAdminUser
-          ? `<td style="cursor: pointer;" class="amount-cell ${t.type}" onclick="openFilteredModal('type', '${t.type}', '${t.type === 'income' ? 'Income Statement' : 'Expense Statement'}', 'All ${t.type} transactions')">${t.type === 'income' ? '+' : '-'} ₹${amtValue.toLocaleString('en-IN')}</td>`
-          : `<td class="amount-cell ${t.type}">${t.type === 'income' ? '+' : '-'} ₹${amtValue.toLocaleString('en-IN')}</td>`;
+          ? `<td data-label="Amount" style="cursor: pointer;" class="amount-cell ${t.type}" onclick="openFilteredModal('type', '${t.type}', '${t.type === 'income' ? 'Income Statement' : 'Expense Statement'}', 'All ${t.type} transactions')">${t.type === 'income' ? '+' : '-'} ₹${amtValue.toLocaleString('en-IN')}</td>`
+          : `<td data-label="Amount" class="amount-cell ${t.type}">${t.type === 'income' ? '+' : '-'} ₹${amtValue.toLocaleString('en-IN')}</td>`;
 
         ledgerHtml += `
           <tr>
-            <td>
+            <td data-label="Description">
               ${descCell}
             </td>
             ${catTd}
             ${userTd}
             ${dateTd}
             ${amountTd}
-            <td style="text-align: right;">
-              <button class="btn-delete" onclick="deleteTransaction('${t.id}')" title="Delete record">
+            <td data-label="Action" style="text-align: right;">
+              <button class="btn-delete" onclick="deleteTransaction('${t.id}', '${t.userUid || ''}')" title="Delete record">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <polyline points="3 6 5 6 21 6"/>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -3056,7 +3588,9 @@
     // Legacy handler redirecting to openFilteredModal
     function openEmployeeModal(userName, userUid) {
       const idToUse = userUid || userName;
-      openFilteredModal('user', idToUse, `${userName}'s Spending Sheet`, `Team member full profile summary`);
+      const userObj = allUsers.find(u => u.uid === userUid || u.name === userName);
+      const subtitle = userObj ? `${userObj.role.replace("_", " ")} | ${userObj.email}` : "Team member full profile summary";
+      openFilteredModal('user', idToUse, `${userName}'s Spending Sheet`, subtitle);
     }
 
     // Render statement sheet data inside the modal
@@ -3074,6 +3608,23 @@
       
       document.getElementById("modalEmployeeName").innerText = profile.name;
       document.getElementById("modalEmployeeMeta").innerText = `${profile.role} | ${profile.dept} | ${profile.employeeId}`;
+
+      // Check if it's a team member sheet (to show Remove User button for Admin)
+      const btnDeleteUser = document.getElementById("btnDeleteUser");
+      if (btnDeleteUser) {
+        const isUserSheet = profile.employeeId && profile.employeeId.startsWith("USER: ");
+        const targetUid = isUserSheet ? profile.employeeId.substring(6) : null;
+        const isAdmin = currentUserProfile && currentUserProfile.role === "ADMIN";
+        
+        // Show delete button only if it's a user profile, logged-in user is ADMIN, and not deleting themselves
+        if (isUserSheet && isAdmin && targetUid && targetUid !== currentUserProfile.uid) {
+          btnDeleteUser.style.display = "inline-block";
+          btnDeleteUser.setAttribute("data-target-uid", targetUid);
+        } else {
+          btnDeleteUser.style.display = "none";
+          btnDeleteUser.removeAttribute("data-target-uid");
+        }
+      }
       
       let inflow = 0;
       let outflow = 0;
@@ -3125,15 +3676,15 @@
           
           tableHtml += `
             <tr>
-              <td>
+              <td data-label="Description">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <div class="transaction-icon-box" style="width: 24px; height: 24px; font-size: 0.8rem;">${catInfo.icon}</div>
                   <span style="font-weight: 500; color: var(--text-main);">${t.description}</span>
                 </div>
               </td>
-              <td><span class="category-badge">${t.category}</span></td>
-              <td style="font-size: 0.8rem; color: var(--text-muted);">${dateFormatted}</td>
-              <td style="text-align: right; font-weight: 700;" class="amount-cell ${t.type}">
+              <td data-label="Category"><span class="category-badge">${t.category}</span></td>
+              <td data-label="Date / Time" style="font-size: 0.8rem; color: var(--text-muted);">${dateFormatted}</td>
+              <td data-label="Amount" style="text-align: right; font-weight: 700;" class="amount-cell ${t.type}">
                 ${t.type === 'income' ? '+' : '-'} ₹${(parseFloat(t.amount) || 0).toLocaleString('en-IN')}
               </td>
             </tr>
@@ -3148,6 +3699,70 @@
       const overlay = document.getElementById("ledgerModalOverlay");
       if (overlay) overlay.classList.remove("active");
       window.currentModalData = null;
+    }
+
+    function deleteUser(targetUid) {
+      if (!currentUserProfile || currentUserProfile.role !== "ADMIN") {
+        showToast("Access Denied: Insufficient Clearances", "error");
+        return;
+      }
+      
+      if (currentUserProfile.uid === targetUid) {
+        showToast("Operation Denied: You cannot delete your own admin account.", "error");
+        return;
+      }
+
+      if (confirm("Are you sure you want to permanently remove this user account? All their profile credentials will be deleted, preventing them from logging in.")) {
+        if (isFirebaseConfigured && auth) {
+          // Firebase Production Mode
+          db.collection("users").doc(targetUid).delete()
+            .then(() => {
+              showToast("User profile successfully removed from the system.");
+              closeEmployeeModal();
+            })
+            .catch((error) => {
+              console.error("Firestore user delete error:", error);
+              showToast("Failed to delete user profile from Firestore.", "error");
+            });
+        } else {
+          // Local Sandbox Mode
+          let localUsersStr = localStorage.getItem("local_users");
+          if (localUsersStr) {
+            try {
+              let users = JSON.parse(localUsersStr);
+              users = users.filter(u => u.uid !== targetUid);
+              localStorage.setItem("local_users", JSON.stringify(users));
+              allUsers = users;
+              showToast("User profile removed from local sandbox.");
+              closeEmployeeModal();
+              updateUI();
+            } catch (e) {
+              console.error("Local users parse error: ", e);
+            }
+          }
+        }
+      }
+    }
+
+    function scrollToDirectory() {
+      // Toggle menu if on mobile
+      const controls = document.getElementById("headerControls");
+      if (controls && controls.classList.contains("active")) {
+        toggleMobileMenu();
+      }
+      
+      const dirSection = document.getElementById("adminDirectorySection");
+      if (dirSection) {
+        dirSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const header = dirSection.querySelector('h3');
+        if (header) {
+          header.style.transition = 'text-shadow 0.3s ease';
+          header.style.textShadow = '0 0 10px var(--primary)';
+          setTimeout(() => {
+            header.style.textShadow = 'none';
+          }, 1000);
+        }
+      }
     }
 
     // Export current modal table data to CSV (Google Sheets / Excel)
@@ -3360,6 +3975,24 @@
       if (modal) modal.classList.remove("active");
     }
 
+    function toggleMobileMenu() {
+      const controls = document.getElementById("headerControls");
+      if (controls) {
+        controls.classList.toggle("active");
+      }
+    }
+
+    // Close mobile menu if clicked outside
+    document.addEventListener("click", (e) => {
+      const controls = document.getElementById("headerControls");
+      const btn = document.getElementById("hamburgerBtn");
+      if (controls && btn && controls.classList.contains("active")) {
+        if (!controls.contains(e.target) && !btn.contains(e.target)) {
+          controls.classList.remove("active");
+        }
+      }
+    });
+
     // Fade out page loader on load
     window.addEventListener("load", () => {
       const loader = document.getElementById("pageLoader");
@@ -3376,14 +4009,17 @@
     <div class="ledger-modal-content">
       <div class="modal-header">
         <div>
-          <h3 class="modal-title" id="modalEmployeeName">Employee Name</h3>
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <h3 class="modal-title" id="modalEmployeeName">Employee Name</h3>
+            <button id="btnDeleteUser" class="btn-delete-user" style="display: none;" onclick="deleteUser(this.getAttribute('data-target-uid'))">Remove User</button>
+          </div>
           <span id="modalEmployeeMeta" style="font-size: 0.8rem; color: var(--text-secondary);">Role | Department</span>
         </div>
         <button class="modal-close-btn" onclick="closeEmployeeModal()" title="Close overlay">&times;</button>
       </div>
 
       <!-- User Spent Statistics -->
-      <div class="metric-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 25px; gap: 15px;">
+      <div class="modal-metric-grid">
         <div class="metric-card" style="padding: 15px 20px;">
           <div class="metric-details">
             <span class="metric-label" style="font-size: 0.75rem;">Total Inflow</span>
